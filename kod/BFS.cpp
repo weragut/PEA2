@@ -14,28 +14,28 @@ void BFS::run(int startNode) {
     int size = matrix.getSize();
     if (size == 0) {
         cerr << "Macierz jest pusta. Algorytm BFS nie moze byc wykonany." << endl;
-        return; // zwracamy, jesli macierz jest pusta
+        return;
     }
 
     // struktura przechowujaca aktualny stan w algorytmie BFS
-    struct State {
+    struct StanWierzcholka {
         int currentNode; // obecny wierzcholek
         vector<int> path; // sciezka odwiedzonych wierzcholkow
         int cost; // calkowity koszt sciezki
 
         // konstruktor struktury State
-        State(int node, vector<int> p, int c) : currentNode(node), path(p), cost(c) {}
+        StanWierzcholka(int node, vector<int> p, int c) : currentNode(node), path(p), cost(c) {}
     };
 
     // kolejka do przechowywania stanow do przetworzenia
-    queue<State> queue;
-    queue.push(State(startNode, {startNode}, 0)); // inicjalizacja z wierzcholkiem startowym
+    queue<StanWierzcholka> queue; // inicjalizacja kolejki
+    queue.push(StanWierzcholka(startNode, {startNode}, 0)); // inicjalizacja z wierzcholkiem startowym
     int bestCost = INT_MAX; // poczatkowo najlepszy koszt jest maksymalny
     vector<int> bestPath; // przechowywanie najlepszej sciezki
 
     // glowna petla algorytmu BFS
     while (!queue.empty()) {
-        State current = queue.front(); // pobieramy pierwszy stan z kolejki
+        StanWierzcholka current = queue.front(); // pobieramy pierwszy stan z kolejki
         queue.pop(); // usuwamy ten stan z kolejki
 
         // sprawdzamy, czy odwiedzono juz wszystkie miasta i powrot do startu jest mozliwy
@@ -62,7 +62,7 @@ void BFS::run(int startNode) {
 
                 // sprawdzamy, czy nowy koszt jest lepszy niz najlepszy dotychczasowy
                 if (newCost < bestCost) {
-                    queue.push(State(i, newPath, newCost)); // dodajemy nowy stan do kolejki
+                    queue.push(StanWierzcholka(i, newPath, newCost)); // dodajemy nowy stan do kolejki
                 }
             }
         }
