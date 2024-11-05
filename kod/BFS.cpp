@@ -13,7 +13,7 @@ BFS::BFS(const Matrix& matrix) : matrix(matrix) {}
 void BFS::run(int startNode) {
     int size = matrix.getSize();
     if (size == 0) {
-        cerr << "Macierz jest pusta. Algorytm BFS nie moze byc wykonany." << endl;
+        cerr << "Macierz jest pusta." << endl;
         return;
     }
 
@@ -23,7 +23,7 @@ void BFS::run(int startNode) {
         vector<int> path; // sciezka odwiedzonych wierzcholkow
         int cost; // calkowity koszt sciezki
 
-        // konstruktor struktury State
+        // konstruktor struktury StanWierzcholka
         StanWierzcholka(int node, vector<int> p, int c) : currentNode(node), path(p), cost(c) {}
     };
 
