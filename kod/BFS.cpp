@@ -1,81 +1,69 @@
 #include "BFS.h"
 #include <iostream>
-#include <queue>
-#include <vector>
-#include <algorithm> // dodanie naglowka dla std::find
+#include <climits>
 
-using namespace std;
+BFS::BFS(const Matrix& m) : matrix(m), minCost(INT_MAX), bestPath(nullptr) {}
 
-// konstruktor klasy BFS, przyjmuje referencje do obiektu Matrix
-BFS::BFS(const Matrix& matrix) : matrix(matrix) {}
+BFS::~BFS() {
+    delete[] bestPath;
+}
 
-// implementacja metody run, wykonuje algorytm BFS
-void BFS::run(int startNode) {
+void BFS::findShortestPath() {
     int size = matrix.getSize();
-    if (size == 0) {
-        cerr << "Macierz jest pusta." << endl;
+    if (size == 0) return;
+
+    int* path = new int[size + 1];
+    bool* visited = new bool[size]();
+
+    path[0] = 0;
+    visited[0] = true;
+
+    branchAndBound(path, visited, 1, 0);
+
+    delete[] path;
+    delete[] visited;
+}
+
+void BFS::displayResult() const {
+    if (bestPath != nullptr) {
+        std::cout << "Najkrotsza trasa: ";
+        for (int i = 0; i <= matrix.getSize(); ++i) {
+            std::cout << bestPath[i] << " ";
+        }
+        std::cout << "\nKoszt: " << minCost << std::endl;
+    } else {
+        std::cout << "Nie znaleziono rozwiazania." << std::endl;
+    }
+}
+
+void BFS::branchAndBound(int* path, bool* visited, int level, int currentCost) {
+    int size = matrix.getSize();
+
+    if (level == size) {
+        int totalCost = currentCost + matrix.getCost(path[level - 1], path[0]);
+        if (totalCost < minCost) {
+            minCost = totalCost;
+            if (bestPath == nullptr) bestPath = new int[size + 1];
+            for (int i = 0; i < size; ++i) {
+                bestPath[i] = path[i];
+            }
+            bestPath[size] = path[0];
+        }
         return;
     }
 
-    // struktura przechowujaca aktualny stan w algorytmie BFS
-    struct StanWierzcholka {
-        int currentNode; // obecny wierzcholek
-        vector<int> path; // sciezka odwiedzonych wierzcholkow
-        int cost; // calkowity koszt sciezki
+    for (int i = 1; i < size; ++i) {
+        if (!visited[i]) {
+            int newCost = currentCost + matrix.getCost(path[level - 1], i);
 
-        // konstruktor struktury StanWierzcholka
-        StanWierzcholka(int node, vector<int> p, int c) : currentNode(node), path(p), cost(c) {}
-    };
+            if (newCost < minCost) {
+                path[level] = i;
+                visited[i] = true;
 
-    // kolejka do przechowywania stanow do przetworzenia
-    queue<StanWierzcholka> queue; // inicjalizacja kolejki
-    queue.push(StanWierzcholka(startNode, {startNode}, 0)); // inicjalizacja z wierzcholkiem startowym
-    int bestCost = INT_MAX; // poczatkowo najlepszy koszt jest maksymalny
-    vector<int> bestPath; // przechowywanie najlepszej sciezki
+                branchAndBound(path, visited, level + 1, newCost);
 
-    // glowna petla algorytmu BFS
-    while (!queue.empty()) {
-        StanWierzcholka current = queue.front(); // pobieramy pierwszy stan z kolejki
-        queue.pop(); // usuwamy ten stan z kolejki
-
-        // sprawdzamy, czy odwiedzono juz wszystkie miasta i powrot do startu jest mozliwy
-        if (current.path.size() == size) {
-            int returnCost = matrix.getCost(current.currentNode, startNode);
-            if (returnCost > 0) { // sprawdzamy, czy koszt powrotu jest dodatni (czy istnieje krawedz)
-                int totalCost = current.cost + returnCost;
-                if (totalCost < bestCost) { // aktualizujemy najlepszy koszt, jesli znalezlismy lepszy
-                    bestCost = totalCost;
-                    bestPath = current.path;
-                    bestPath.push_back(startNode); // dodajemy powrot do startu
-                }
-            }
-            continue; // przechodzimy do kolejnego stanu w kolejce
-        }
-
-        // przegladanie sasiadow bieżącego wierzcholka
-        for (int i = 0; i < size; ++i) {
-            // sprawdzamy, czy istnieje krawedz i czy wierzcholek nie byl odwiedzony
-            if (matrix.getCost(current.currentNode, i) > 0 && find(current.path.begin(), current.path.end(), i) == current.path.end()) {
-                vector<int> newPath = current.path; // kopiujemy biezaca sciezke
-                newPath.push_back(i); // dodajemy nowy wierzcholek do sciezki
-                int newCost = current.cost + matrix.getCost(current.currentNode, i); // obliczamy nowy koszt
-
-                // sprawdzamy, czy nowy koszt jest lepszy niz najlepszy dotychczasowy
-                if (newCost < bestCost) {
-                    queue.push(StanWierzcholka(i, newPath, newCost)); // dodajemy nowy stan do kolejki
-                }
+                visited[i] = false;
             }
         }
-    }
-
-    // wyswietlanie najlepszego znalezionego rozwiazania
-    if (!bestPath.empty()) {
-        cout << "Najlepsza znaleziona sciezka: ";
-        for (int node : bestPath) {
-            cout << node << " ";
-        }
-        cout << "\nKoszt: " << bestCost << endl;
-    } else {
-        cout << "Nie znaleziono sciezki." << endl;
     }
 }

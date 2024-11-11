@@ -3,14 +3,10 @@
 #include <ctime>
 #include <cstdlib>
 #include <fstream>
-#include <chrono>
-#include <thread>
-#include <numeric>  // dla accumulate
-#include <windows.h> // do pomiaru zajetej pamieci
-#include <psapi.h> // do pomiaru zajetej pamieci
 #include "Config.h"
 #include "Matrix.h"
 #include "BFS.h"
+#include "DFS.h"
 
 using namespace std;
 
@@ -26,16 +22,22 @@ void algorithmExecution() {
 
         double executionTime = 0.0;
         int minCost = -1;
+        int startNode = config.start_node; // wierzcholek z pliku
 
         if (config.alghoritm_type == "bfs") {
             BFS bfs(matrix);
-            int startNode = config.start_node; // Użycie wierzchołka z pliku konfiguracyjnego
 
             if (startNode >= 0 && startNode < matrix.getSize()) {
-                bfs.run(startNode);
+                // Wykonujemy algorytm BFS dla problemu komiwojażera
+                bfs.findShortestPath();
+
+                // Wyświetlamy wynik
+                bfs.displayResult();
             } else {
                 cerr << "Nieprawidlowy wierzcholek startowy." << endl;
             }
+        }else if(config.alghoritm_type == "dfs") {
+            cout<< "Metoda DFS" << endl;
         }
 
 
