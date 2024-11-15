@@ -13,12 +13,14 @@ public:
 
     // Metoda wykonująca algorytm BFS, aby znaleźć najkrótszą trasę
     void findShortestPath();
+    void findShortestPathSymmetric();  // Algorytm dla macierzy symetrycznych
 
     // Metoda wyświetlająca wynik końcowy
     void displayResult() const;
 
     // Metoda rekurencyjna do wykonywania algorytmu branch and bound na częściach trasy
     void branchAndBound(int* path, bool* visited, int level, int currentCost);
+    void branchAndBoundSymmetric(int* path, bool* visited, int level, int currentCost); // Branch and Bound dla macierzy symetrycznych
 
 private:
     const Matrix& matrix;      // Referencja do macierzy kosztów

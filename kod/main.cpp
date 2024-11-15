@@ -29,9 +29,12 @@ void algorithmExecution() {
 
             if (startNode >= 0 && startNode < matrix.getSize()) {
                 // Wykonujemy algorytm BFS dla problemu komiwojażera
-                bfs.findShortestPath();
+                //bfs.findShortestPath();
+
 
                 // Wyświetlamy wynik
+                //bfs.displayResult();
+                bfs.findShortestPathSymmetric();
                 bfs.displayResult();
             } else {
                 cerr << "Nieprawidlowy wierzcholek startowy." << endl;
