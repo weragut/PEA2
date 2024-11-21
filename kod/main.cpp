@@ -7,6 +7,7 @@
 #include "Matrix.h"
 #include "BFS.h"
 #include "DFS.h"
+#include "TSPBranchAndBound.h"
 
 using namespace std;
 
@@ -36,14 +37,20 @@ void algorithmExecution() {
                 bfs.displayResult();
                 //bfs.findShortestPathSymmetric();
                 //bfs.displayResult();
+                cout<< "Metoda BFS" << endl;
+
             } else {
                 cerr << "Nieprawidlowy wierzcholek startowy." << endl;
             }
         }else if(config.alghoritm_type == "dfs") {
-            DFS dfs(matrix);
-            dfs.findShortestPath();
-            dfs.displayResult();
+            //DFS dfs(matrix);
+           // dfs.findShortestPath();
+            //dfs.displayResult();
             cout<< "Metoda DFS" << endl;
+            // Rozwiązanie TSP algorytmem Branch and Bound
+            TSPBranchAndBound tsp(&matrix);
+            tsp.solveTSP();
+            tsp.printResult();
         }
 
 
