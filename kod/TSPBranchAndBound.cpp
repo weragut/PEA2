@@ -6,16 +6,16 @@ using namespace std;
 
 TSPBranchAndBound::TSPBranchAndBound(Matrix* inputMatrix) {
     matrix = inputMatrix;
-    N = matrix->getSize();
-    final_res = INT_MAX;
-    visited.resize(N, false);
-    final_path.resize(N+1, -1);
+    matrix_size = matrix->getSize(); // number of vertices
+    final_res = INT_MAX; // final cost
+    visited.resize(matrix_size, false); // visited vector
+    final_path.resize(matrix_size+1, -1); // final path
 }
 
 void TSPBranchAndBound::copyToFinal(const vector<int>& curr_path) {
-    final_path = curr_path; // Kopiujemy bieżącą ścieżkę
+    final_path = curr_path; // copy actual path
     if (final_path[0] != -1) {
-        final_path.push_back(final_path[0]); // Dodajemy punkt startowy tylko raz
+        final_path.push_back(final_path[0]); // additn the starting point at the end to close the cycle
     } else {
         cerr << "Error: Invalid starting node (-1) in path!" << endl;
     }
@@ -28,19 +28,20 @@ void TSPBranchAndBound::copyToFinal(const vector<int>& curr_path) {
     cout << endl;
 }
 
+// finding the lowest cost from the vertex
 int TSPBranchAndBound::firstMin(int i) {
-    int min_cost = INT_MAX;
-    for (int k = 0; k < N; k++) {
+    int first_min = INT_MAX;
+    for (int k = 0; k < matrix_size; k++) {
         if (matrix->getCost(i, k) != -1 && i != k) {
-            min_cost = min(min_cost, matrix->getCost(i, k));
+            first_min = min(first_min, matrix->getCost(i, k));
         }
     }
-    return min_cost;
+    return first_min;
 }
-
+// finding the second lowest cost from the vertex
 int TSPBranchAndBound::secondMin(int i) {
     int first = INT_MAX, second = INT_MAX;
-    for (int k = 0; k < N; k++) {
+    for (int k = 0; k < matrix_size; k++) {
         if (matrix->getCost(i, k) != -1 && i != k) {
             if (matrix->getCost(i, k) <= first) {
                 second = first;
@@ -60,10 +61,14 @@ void TSPBranchAndBound::TSPRec(int curr_bound, int curr_weight, int level, vecto
     }
     cout << ", Current Weight: " << curr_weight << ", Current Bound: " << curr_bound << endl;
 
-    if (level == N) {
+    // checking if all vertices are in the path
+    if (level == matrix_size) {
         if (matrix->getCost(curr_path[level - 1], curr_path[0]) != -1) {
+            // adding the cost of return to the starting vertex
             int curr_res = curr_weight + matrix->getCost(curr_path[level - 1], curr_path[0]);
+            // if the current path has lower cost than the previous cost
             if (curr_res < final_res) {
+                // new final path
                 copyToFinal(curr_path);
                 final_res = curr_res;
             }
@@ -71,43 +76,60 @@ void TSPBranchAndBound::TSPRec(int curr_bound, int curr_weight, int level, vecto
         return;
     }
 
-    for (int i = 0; i < N; i++) {
+    // expanding the branch
+    for (int i = 0; i < matrix_size; i++) {
+        // checking if there is a path and if it has already been visited
         if (matrix->getCost(curr_path[level - 1], i) != -1 && !visited[i]) {
-            int temp = curr_bound;
+            // copy current bound
+            int the_bound = curr_bound;
+            // adding weight
             curr_weight += matrix->getCost(curr_path[level - 1], i);
 
+            // update bound
             if (level == 1)
                 curr_bound -= (firstMin(curr_path[level - 1]) + firstMin(i)) / 2;
             else
                 curr_bound -= (secondMin(curr_path[level - 1]) + firstMin(i)) / 2;
 
+            // pruning branches
+            // if the branch is potentially better
             if (curr_bound + curr_weight < final_res) {
                 curr_path[level] = i;
                 visited[i] = true;
+                // recursively explorinf further levels
                 TSPRec(curr_bound, curr_weight, level + 1, curr_path);
             }
 
-            curr_weight -= matrix->getCost(curr_path[level - 1], i);
-            curr_bound = temp;
-            fill(visited.begin(), visited.end(), false);
+            // backtracking
+            curr_weight -= matrix->getCost(curr_path[level - 1], i); // subtracting the cost of the last added edge
+            curr_bound = the_bound; // returning to previous bound
+            fill(visited.begin(), visited.end(), false); // reset the visited vertices
             for (int j = 0; j <= level - 1; j++) {
-                visited[curr_path[j]] = true;
+                visited[curr_path[j]] = true; // adding visited vertices to the path
             }
         }
     }
 }
 
 void TSPBranchAndBound::solveTSP() {
-    vector<int> curr_path(N, -1);
+    // vector to store the current route
+    vector<int> curr_path(matrix_size, -1);
+    // lower bound
     int curr_bound = 0;
 
-    for (int i = 0; i < N; i++) {
+    //initial lower bound based on the first and second minimum costs for each vertex
+    for (int i = 0; i < matrix_size; i++) {
         curr_bound += firstMin(i) + secondMin(i);
     }
-    curr_bound = (curr_bound % 2 == 0) ? curr_bound / 2 : curr_bound / 2 + 1;
 
-    visited[0] = true;
-    curr_path[0] = 0;
+    if(curr_bound % 2 == 0) {
+        curr_bound = curr_bound/2;
+    }else if (curr_bound % 2 == 1) {
+        curr_bound = curr_bound/2 + 1;
+    }
+
+    visited[0] = true; // first vertex visited
+    curr_path[0] = 0; // first vertex set as the start of the path
 
     TSPRec(curr_bound, 0, 1, curr_path);
 }

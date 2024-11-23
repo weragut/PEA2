@@ -10,7 +10,7 @@ private:
     int final_res;                     // Minimalny koszt
     std::vector<int> final_path;       // Optymalna ścieżka
     std::vector<bool> visited;         // Węzły odwiedzone
-    int N;                             // Liczba miast
+    int matrix_size;                             // Liczba miast
     Matrix* matrix;                    // Wskaźnik do macierzy kosztów
 
     // Funkcje pomocnicze
