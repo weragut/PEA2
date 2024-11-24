@@ -61,14 +61,14 @@ void TSPBranchAndBound::TSPRec(int curr_bound, int curr_weight, int level, vecto
     }
     cout << ", Current Weight: " << curr_weight << ", Current Bound: " << curr_bound << endl;
 
-    // checking if all vertices are in the path
+    // Sprawdzamy, czy wszystkie wierzchołki zostały odwiedzone
     if (level == matrix_size) {
         if (matrix->getCost(curr_path[level - 1], curr_path[0]) != -1) {
-            // adding the cost of return to the starting vertex
+            // Dodajemy koszt powrotu do wierzchołka początkowego
             int curr_res = curr_weight + matrix->getCost(curr_path[level - 1], curr_path[0]);
-            // if the current path has lower cost than the previous cost
+
+            // Jeśli aktualna ścieżka jest lepsza, aktualizujemy najlepszą
             if (curr_res < final_res) {
-                // new final path
                 copyToFinal(curr_path);
                 final_res = curr_res;
             }
@@ -76,40 +76,35 @@ void TSPBranchAndBound::TSPRec(int curr_bound, int curr_weight, int level, vecto
         return;
     }
 
-    // expanding the branch
+    // Rozwijamy gałęzie
     for (int i = 0; i < matrix_size; i++) {
-        // checking if there is a path and if it has already been visited
+        // Sprawdzamy, czy istnieje krawędź i czy wierzchołek nie został odwiedzony
         if (matrix->getCost(curr_path[level - 1], i) != -1 && !visited[i]) {
-            // copy current bound
-            int the_bound = curr_bound;
-            // adding weight
-            curr_weight += matrix->getCost(curr_path[level - 1], i);
+            int the_bound = curr_bound;  // Kopiujemy bieżące ograniczenie
+            curr_weight += matrix->getCost(curr_path[level - 1], i);  // Dodajemy wagę krawędzi
 
-            // update bound
+            // Aktualizujemy ograniczenie
             if (level == 1)
                 curr_bound -= (firstMin(curr_path[level - 1]) + firstMin(i)) / 2;
             else
                 curr_bound -= (secondMin(curr_path[level - 1]) + firstMin(i)) / 2;
 
-            // pruning branches
-            // if the branch is potentially better
+            // Jeśli potencjalna ścieżka jest lepsza, kontynuujemy rekurencję
             if (curr_bound + curr_weight < final_res) {
                 curr_path[level] = i;
                 visited[i] = true;
-                // recursively explorinf further levels
                 TSPRec(curr_bound, curr_weight, level + 1, curr_path);
             }
 
-            // backtracking
-            curr_weight -= matrix->getCost(curr_path[level - 1], i); // subtracting the cost of the last added edge
-            curr_bound = the_bound; // returning to previous bound
-            fill(visited.begin(), visited.end(), false); // reset the visited vertices
-            for (int j = 0; j <= level - 1; j++) {
-                visited[curr_path[j]] = true; // adding visited vertices to the path
-            }
+            // Cofanie zmian (backtracking)
+            curr_weight -= matrix->getCost(curr_path[level - 1], i);  // Odejmujemy wagę krawędzi
+            curr_bound = the_bound;  // Przywracamy poprzednie ograniczenie
+            visited[i] = false;  // Resetujemy stan odwiedzenia
+            curr_path[level] = -1;  // Resetujemy bieżący poziom ścieżki
         }
     }
 }
+
 
 void TSPBranchAndBound::solveTSP() {
     // vector to store the current route
@@ -151,4 +146,3 @@ void TSPBranchAndBound::printResult() {
     }
     cout << endl;
 }
-

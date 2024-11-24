@@ -6,9 +6,10 @@
 #include "Config.h"
 #include "Matrix.h"
 #include "BFS.h"
+#include "BFSBranchAndBound.h"
 #include "DFS.h"
 #include "TSPBranchAndBound.h"
-
+#include "ProbyAlgorytmow.h"
 using namespace std;
 
 // obiekt config do przechowywania ustawien z pliku konfiguracyjnego
@@ -26,15 +27,19 @@ void algorithmExecution() {
         int startNode = config.start_node; // wierzcholek z pliku
 
         if (config.alghoritm_type == "bfs") {
-            BFS bfs(matrix);
+            //BFS bfs(matrix);
+            BFSBranchAndBound bfsSolver(&matrix);
+            bfsSolver.solveTSP();
+            cout << "BFS Branch and Bound Result:" << endl;
+            bfsSolver.printResult();
 
             if (startNode >= 0 && startNode < matrix.getSize()) {
                 // Wykonujemy algorytm BFS dla problemu komiwojażera
-                bfs.findShortestPath();
+                //bfs.findShortestPath();
 
 
                 // Wyświetlamy wynik
-                bfs.displayResult();
+                //bfs.displayResult();
                 //bfs.findShortestPathSymmetric();
                 //bfs.displayResult();
                 cout<< "Metoda BFS" << endl;
@@ -51,6 +56,10 @@ void algorithmExecution() {
             TSPBranchAndBound tsp(&matrix);
             tsp.solveTSP();
             tsp.printResult();
+
+            /*ProbyAlgorytmow tspSolver(&matrix);
+            tspSolver.solveTSP();
+            tspSolver.printResult();*/
         }
 
 

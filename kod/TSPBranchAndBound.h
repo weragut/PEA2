@@ -17,6 +17,7 @@ private:
     void copyToFinal(const std::vector<int>& curr_path); // Kopiuje ścieżkę do final_path
     int firstMin(int i);                                // Pierwsze minimum dla węzła i
     int secondMin(int i);                               // Drugie minimum dla węzła i
+    int calculateBound();
     void TSPRec(int curr_bound, int curr_weight, int level, std::vector<int>& curr_path); // Rekurencyjne B&B
 
 public:
