@@ -18,14 +18,18 @@ private:
     int firstMin(int i);                                // Pierwsze minimum dla węzła i
     int secondMin(int i);                               // Drugie minimum dla węzła i
     int calculateBound();
+    double executionTime; // Pole do przechowywania czasu wykonania
+
     void TSPRec(int curr_bound, int curr_weight, int level, std::vector<int>& curr_path); // Rekurencyjne B&B
 
 public:
     // Konstruktor
     TSPBranchAndBound(Matrix* inputMatrix);
 
+    int getFinalCost() const;
     // Funkcja rozwiązująca problem TSP
     void solveTSP();
+    double getExecutionTime() const; // Funkcja zwracająca czas wykonania
 
     // Funkcja wypisująca wynik
     void printResult();

@@ -1,6 +1,7 @@
 #include "BestFirstSearchBranchAndBound.h"
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 #include <climits>
 
 BestFirstSearchBranchAndBound::BestFirstSearchBranchAndBound(Matrix* inputMatrix)
@@ -33,6 +34,9 @@ int BestFirstSearchBranchAndBound::calculateLowerBound(const std::vector<int>& p
 }
 
 void BestFirstSearchBranchAndBound::solveTSP() {
+
+    auto start = chrono::high_resolution_clock::now(); // Start pomiaru czasu
+
     // Priority queue to explore the node with the smallest bound first
     priority_queue<Node> pq;
 
@@ -74,12 +78,23 @@ void BestFirstSearchBranchAndBound::solveTSP() {
             }
         }
     }
+    auto end = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu
+    chrono::duration<double, micro> duration = end - start;
+    executionTime = duration.count(); // Zapisanie czasu
 }
 
+double BestFirstSearchBranchAndBound::getExecutionTime() const {
+    return executionTime;
+}
 void BestFirstSearchBranchAndBound::printResult() {
     cout << "Final Path: ";
     for (int node : final_path) {
         cout << node << " ";
     }
     cout << "\nMinimum Cost: " << final_res << std::endl;
+}
+
+
+int BestFirstSearchBranchAndBound::getFinalCost() const {
+    return final_res; // Zwraca finalny koszt obliczony przez algorytm
 }

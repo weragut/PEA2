@@ -1,4 +1,6 @@
 #include "TSPBranchAndBound.h"
+
+#include <chrono>
 #include <iostream>
 #include <climits>
 
@@ -21,11 +23,13 @@ void TSPBranchAndBound::copyToFinal(const vector<int>& curr_path) {
     }
 
     // Debugging
+    /*
     cout << "Final path after copying: ";
     for (int node : final_path) {
         cout << node << " ";
     }
     cout << endl;
+    */
 }
 
 // finding the lowest cost from the vertex
@@ -55,12 +59,12 @@ int TSPBranchAndBound::secondMin(int i) {
 }
 
 void TSPBranchAndBound::TSPRec(int curr_bound, int curr_weight, int level, vector<int>& curr_path) {
-    cout << "TSPRec - Level: " << level << ", Current Path: ";
+    /*cout << "TSPRec - Level: " << level << ", Current Path: ";
     for (int node : curr_path) {
         cout << node << " ";
     }
     cout << ", Current Weight: " << curr_weight << ", Current Bound: " << curr_bound << endl;
-
+*/
     // Sprawdzamy, czy wszystkie wierzchołki zostały odwiedzone
     if (level == matrix_size) {
         if (matrix->getCost(curr_path[level - 1], curr_path[0]) != -1) {
@@ -107,6 +111,9 @@ void TSPBranchAndBound::TSPRec(int curr_bound, int curr_weight, int level, vecto
 
 
 void TSPBranchAndBound::solveTSP() {
+
+    auto start = chrono::high_resolution_clock::now(); // Start pomiaru czasu
+
     // vector to store the current route
     vector<int> curr_path(matrix_size, -1);
     // lower bound
@@ -127,8 +134,15 @@ void TSPBranchAndBound::solveTSP() {
     curr_path[0] = 0; // first vertex set as the start of the path
 
     TSPRec(curr_bound, 0, 1, curr_path);
+
+    auto end = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu
+    chrono::duration<double, micro> duration = end - start;
+    executionTime = duration.count(); // Zapisanie czasu
 }
 
+double TSPBranchAndBound::getExecutionTime() const {
+    return executionTime;
+}
 void TSPBranchAndBound::printResult() {
     cout << "Final Path Content: ";
     for (int node : final_path) {
@@ -145,4 +159,8 @@ void TSPBranchAndBound::printResult() {
         cout << final_path[i] << " ";
     }
     cout << endl;
+}
+
+int TSPBranchAndBound::getFinalCost() const {
+    return final_res; // Zwraca finalny koszt obliczony przez algorytm
 }

@@ -27,13 +27,17 @@ private:
     int matrix_size;               // Rozmiar macierzy (liczba wierzchołków)
     int final_res;                 // Minimalny koszt
     vector<int> final_path;   // Optymalna ścieżka
+    double executionTime; // Pole do przechowywania czasu wykonania
 
-    int calculateLowerBound(const std::vector<int>& path, int level);
+    int calculateLowerBound(const vector<int>& path, int level);
 
 public:
     BestFirstSearchBranchAndBound(Matrix* inputMatrix);
 
     void solveTSP();
+    double getExecutionTime() const; // Funkcja zwracająca czas wykonania
+
+    int getFinalCost() const;
     void printResult();
 };
 

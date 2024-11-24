@@ -3,6 +3,8 @@
 #include <ctime>
 #include <cstdlib>
 #include <fstream>
+#include <numeric>
+
 #include "Config.h"
 #include "Matrix.h"
 #include "BFS.h"
@@ -12,30 +14,64 @@
 #include "ProbyAlgorytmow.h"
 #include "BestFirstSearchBranchAndBound.h"
 
+//#include <windows.h> // do pomiaru zajetej pamieci
+//#include <psapi.h> // do pomiaru zajetej pamieci
+
+
 using namespace std;
 
 // obiekt config do przechowywania ustawien z pliku konfiguracyjnego
 Config config;
 // deklaracja macierzy
 Matrix matrix;
-
+/*
+void printMemoryUsage() {
+    PROCESS_MEMORY_COUNTERS memCounter; // struktura do przechowywania danych o zuzyciu pamieci
+    GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter)); // ta funkcja pobiera informacje o zuzyciu pamieci dla danego procesu
+    // argumenty: process handle, wskaznik na strukture przechowujaca dane o pamieci, rozmiar struktury
+    cout << "Aktualnie zajeta pamiec: " << memCounter.WorkingSetSize / 1024 << " KB" << endl;
+}*/
 
 // wykonywanie algorytmu i zapis czasow do plikow
 void algorithmExecution() {
+/*
+    // Pliki wyjściowe dla każdego algorytmu
+    ofstream bfsFile("wyniki/bfs.csv", ios::app);
+    ofstream dfsFile("wyniki/dfs.csv", ios::app);
+    ofstream bestFile("wyniki/best.csv", ios::app);
+*/
+    vector<double> bfsTimes, dfsTimes, bestTimes; // Do przechowywania czasów
+
+
     for (int i = 0; i < config.repetitions; i++) {
 
-        double executionTime = 0.0;
-        int minCost = -1;
-        int startNode = config.start_node; // wierzcholek z pliku
+        // Generowanie lub wczytywanie macierzy
+        if (config.matrix_source == "manual") {
+            matrix.generateManual(config.matrix_size, config.matrix_type);
+        } else if (config.matrix_source == "file") {
+            if (!matrix.loadFromFile(config.input_file)) {
+                cerr << "Błąd wczytywania macierzy." << endl;
+                return;
+            }
+        }
 
-        if (config.alghoritm_type == "bfs") {
-            //BFS bfs(matrix);
+        matrix.display();
+
+        if (config.alghoritm_type == "bfs"|| config.alghoritm_type == "all") {
             BFSBranchAndBound bfsSolver(&matrix);
+            bfsSolver.solveTSP();
+            double bfsTime = bfsSolver.getExecutionTime();
+            bfsTimes.push_back(bfsTime);
+            //bfsFile << matrix.getSize() << "," << bfsTime << "," << bfsSolver.getFinalCost() << "\n";
+            cout << "BFS: final cost = " << bfsSolver.getFinalCost() << endl;
+            //BFS bfs(matrix);
+            /*BFSBranchAndBound bfsSolver(&matrix);
             bfsSolver.solveTSP();
             cout << "BFS Branch and Bound Result:" << endl;
             bfsSolver.printResult();
+            cout << "Czas wykonania (w mikrosekundach): " << bfsSolver.getExecutionTime() << " us" << std::endl;
 
-            if (startNode >= 0 && startNode < matrix.getSize()) {
+*/
                 // Wykonujemy algorytm BFS dla problemu komiwojażera
                 //bfs.findShortestPath();
 
@@ -44,31 +80,93 @@ void algorithmExecution() {
                 //bfs.displayResult();
                 //bfs.findShortestPathSymmetric();
                 //bfs.displayResult();
-                cout<< "Metoda BFS" << endl;
+                //cout<< "Metoda BFS" << endl;
 
-            } else {
-                cerr << "Nieprawidlowy wierzcholek startowy." << endl;
-            }
-        }else if(config.alghoritm_type == "dfs") {
+        }
+
+        if(config.alghoritm_type == "dfs"|| config.alghoritm_type == "all") {
+            TSPBranchAndBound dfsSolver(&matrix);
+            dfsSolver.solveTSP();
+            double dfsTime = dfsSolver.getExecutionTime();
+            dfsTimes.push_back(dfsTime);
+            //dfsFile << matrix.getSize() << "," << dfsTime << "," << dfsSolver.getFinalCost() << "\n";
+            cout << "DFS: final cost = " << dfsSolver.getFinalCost() << endl;
             //DFS dfs(matrix);
            // dfs.findShortestPath();
             //dfs.displayResult();
-            cout<< "Metoda DFS" << endl;
+            //cout<< "Metoda DFS" << endl;
             // Rozwiązanie TSP algorytmem Branch and Bound
-            TSPBranchAndBound tsp(&matrix);
+            /*TSPBranchAndBound tsp(&matrix);
             tsp.solveTSP();
             tsp.printResult();
-
+*/
             /*ProbyAlgorytmow tspSolver(&matrix);
             tspSolver.solveTSP();
             tspSolver.printResult();*/
-        }else if(config.alghoritm_type == "best") {
-            BestFirstSearchBranchAndBound best(&matrix);
+        }
+
+        if(config.alghoritm_type == "best" || config.alghoritm_type == "all") {
+            BestFirstSearchBranchAndBound bestSolver(&matrix);
+            bestSolver.solveTSP();
+            double bestTime = bestSolver.getExecutionTime();
+            bestTimes.push_back(bestTime);
+            //bestFile << matrix.getSize() << "," << bestTime << "," << bestSolver.getFinalCost() << "\n";
+            cout << "best: final cost = " << bestSolver.getFinalCost() << endl;
+            /*BestFirstSearchBranchAndBound best(&matrix);
             best.solveTSP();
             best.printResult();
+            */
         }
 
 
+    }
+    // otworzenie plikow w trybie dopisywania
+    ofstream bfsFile("wyjscie/bfs.csv", ios::app);
+    ofstream dfsFile("wyjscie/dfs.csv", ios::app);
+    ofstream bestFile("wyjscie/best.csv", ios::app);
+
+    // zapisanie wynikow
+        if (config.alghoritm_type == "bfs"|| config.alghoritm_type == "all") {
+        bfsFile << matrix.getSize() << endl; // zapisujemy rozmiar
+        for (double time : bfsTimes) {
+            bfsFile << time << " ";  // zapisujemy czasy oddzielone spacja
+        }
+        bfsFile << endl;
+    }
+
+    if(config.alghoritm_type == "dfs"|| config.alghoritm_type == "all") {
+        dfsFile << matrix.getSize() << endl;
+        for (double time : dfsTimes) {
+            dfsFile << time << " ";
+        }
+        dfsFile << endl;
+    }
+
+    if(config.alghoritm_type == "best" || config.alghoritm_type == "all") {
+        bestFile << matrix.getSize() << endl;
+        for (double time : bestTimes) {
+            bestFile << time << " ";
+        }
+        bestFile << endl;
+    }
+
+    // Zamykanie plików
+    bfsFile.close();
+    dfsFile.close();
+    bestFile.close();
+
+    // Obliczanie średnich czasów dla każdego algorytmu
+    if (!bfsTimes.empty()) {
+        double avgBfsTime = accumulate(bfsTimes.begin(), bfsTimes.end(), 0.0) / bfsTimes.size();
+        cout << "Średni czas wykonania BFS: " << avgBfsTime << " us" << endl;
+    }
+    if (!dfsTimes.empty()) {
+        double avgDfsTime = accumulate(dfsTimes.begin(), dfsTimes.end(), 0.0) / dfsTimes.size();
+        cout << "Średni czas wykonania DFS: " << avgDfsTime << " us" << endl;
+    }
+    if (!bestTimes.empty()) {
+        double avgBestTime = accumulate(bestTimes.begin(), bestTimes.end(), 0.0) / bestTimes.size();
+        cout << "Średni czas wykonania Best-First Search: " << avgBestTime << " us" << endl;
     }
 }
 
@@ -81,19 +179,12 @@ int main() {
         return 1;
     }
 
-    // tworzenie macierzy z pliku lub generowanie jej manualnie
-    if (config.matrix_source == "file") {
-        if (!matrix.loadFromFile(config.input_file)) {
-            return 1;
-        }
-    } else if (config.matrix_source == "manual") {
-        matrix.generateManual(config.matrix_size, config.matrix_type);
-    }
+    //  informations
+    cout << "Liczba powtórzeń: " << config.repetitions << "\n";
+    cout << "Rozmiar macierzy: " << config.matrix_size << "\n";
+    cout << "Typ algorytmu: " << config.alghoritm_type << "\n";    matrix.display();
 
-    // wyswietlenie rozmiaru macierzy
-    cout << "Rozmiar macierzy: " << matrix.getSize() << "x" << matrix.getSize() << endl;
-    matrix.display();
-    // wywolanie wykonania algorytmu
+    // alghoritm executions
     algorithmExecution();
 
     return 0;

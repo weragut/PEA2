@@ -1,5 +1,7 @@
 #include "BFSBranchAndBound.h"
 
+#include <chrono>
+
 BFSBranchAndBound::BFSBranchAndBound(Matrix* inputMatrix) {
     matrix = inputMatrix;
     matrix_size = matrix->getSize();
@@ -31,6 +33,8 @@ void BFSBranchAndBound::copyToFinal(const vector<int>& path) {
 }
 
 void BFSBranchAndBound::solveTSP() {
+    auto start = chrono::high_resolution_clock::now(); // Start pomiaru czasu
+
     queue<Node> q;
 
     // Tworzymy korzeń drzewa
@@ -77,6 +81,12 @@ void BFSBranchAndBound::solveTSP() {
             }
         }
     }
+    auto end = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu
+    chrono::duration<double, micro> duration = end - start;
+    executionTime = duration.count(); // Zapisanie czasu
+}
+double BFSBranchAndBound::getExecutionTime() const {
+    return executionTime;
 }
 
 void BFSBranchAndBound::printResult() {
@@ -95,4 +105,8 @@ void BFSBranchAndBound::printResult() {
         cout << final_path[i] << " ";
     }
     cout << endl;
+}
+
+int BFSBranchAndBound::getFinalCost() const {
+    return final_res; // Zwraca finalny koszt obliczony przez algorytm
 }

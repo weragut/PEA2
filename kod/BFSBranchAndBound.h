@@ -26,12 +26,17 @@ private:
 
     // Funkcje pomocnicze
     int calculateBound(const Node& node);
+    double executionTime; // Pole do przechowywania czasu wykonania
+
     void copyToFinal(const vector<int>& path);
 
 public:
     BFSBranchAndBound(Matrix* inputMatrix);
     void solveTSP();
+    double getExecutionTime() const; // Funkcja zwracająca czas wykonania
     void printResult();
+
+    int getFinalCost() const;
 };
 
 #endif // BFSBRANCHANDBOUND_H
