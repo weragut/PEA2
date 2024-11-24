@@ -2,37 +2,40 @@
 #define BFSBRANCHANDBOUND_H
 
 #include "Matrix.h"
-#include "QueueClass.h"
+#include "QueueClass.h" // queue implementation
 #include <vector>
 #include <climits>
 #include <iostream>
 
+using namespace std;
+
 class BFSBranchAndBound {
 private:
-    Matrix* matrix;                     // Macierz kosztów
-    int matrix_size;                    // Liczba wierzchołków
-    int final_res;                      // Minimalny koszt
-    std::vector<int> final_path;        // Najlepsza ścieżka
+    Matrix* matrix;
+    int matrix_size;
+    int final_res; // minimal cost
+    vector<int> final_path; // the best path
 
+    // definition of a node structure
     struct Node {
-        int level;                      // Poziom w drzewie (liczba odwiedzonych wierzchołków)
-        int bound;                      // Ograniczenie dla tej ścieżki
-        int cost;                       // Koszt dotychczasowy
-        std::vector<int> path;          // Aktualna ścieżka
-        std::vector<bool> visited;      // Wierzchołki odwiedzone
+        int level; // depth (the number of visited nodes)
+        int bound; // lower bound for this node
+        int cost; // cost for the current path
+        vector<int> path; // list of visited nodes in the current path
+        vector<bool> visited; // visited nodes
     };
 
-    double executionTime;               // Czas wykonania algorytmu
+    double executionTime; // time
 
-    int calculateBound(const Node& node); // Funkcja obliczająca ograniczenie dla węzła
-    void copyToFinal(const std::vector<int>& path); // Kopiowanie do finalnej ścieżki
+    int calculateBound(const Node& node); // lower bound calculation
+    void copyToFinal(const vector<int>& path); // copies the current path into the final path
 
 public:
-    BFSBranchAndBound(Matrix* inputMatrix);
-    void solveTSP();                    // Rozwiązanie problemu TSP
-    double getExecutionTime() const;    // Zwraca czas wykonania
-    int getFinalCost() const;           // Zwraca minimalny koszt
-    void printResult();                 // Wyświetla wynik
+    BFSBranchAndBound(Matrix* inputMatrix); // constructor
+    void solveTSP(); // tsp solving function
+    double getExecutionTime() const; // returns the time
+    int getFinalCost() const; // returns min cost
+    void printResult(); // prints result
 };
 
 #endif // BFSBRANCHANDBOUND_H

@@ -159,19 +159,26 @@ void algorithmExecution() {
     dfsFile.close();
     bestFile.close();
 
+    //  informations
+    cout << "Repetitions: " << config.repetitions << "\n";
+    cout << "Matrix size: " << config.matrix_size << "\n"; // zle
+    cout << "Alghoritm type: " << config.alghoritm_type << "\n";
+
     // Obliczanie średnich czasów dla każdego algorytmu
     if (!bfsTimes.empty()) {
         double avgBfsTime = accumulate(bfsTimes.begin(), bfsTimes.end(), 0.0) / bfsTimes.size();
-        cout << "Średni czas wykonania BFS: " << avgBfsTime << " us" << endl;
+        cout << "Average time BFS: " << avgBfsTime << " us" << endl;
     }
     if (!dfsTimes.empty()) {
         double avgDfsTime = accumulate(dfsTimes.begin(), dfsTimes.end(), 0.0) / dfsTimes.size();
-        cout << "Średni czas wykonania DFS: " << avgDfsTime << " us" << endl;
+        cout << "Average time DFS: " << avgDfsTime << " us" << endl;
     }
     if (!bestTimes.empty()) {
         double avgBestTime = accumulate(bestTimes.begin(), bestTimes.end(), 0.0) / bestTimes.size();
-        cout << "Średni czas wykonania Best-First Search: " << avgBestTime << " us" << endl;
+        cout << "Average time Best First Search: " << avgBestTime << " us" << endl;
     }
+
+
 }
 
 
@@ -183,10 +190,7 @@ int main() {
         return 1;
     }
 
-    //  informations
-    cout << "Liczba powtórzeń: " << config.repetitions << "\n";
-    cout << "Rozmiar macierzy: " << config.matrix_size << "\n";
-    cout << "Typ algorytmu: " << config.alghoritm_type << "\n";    matrix.display();
+
 
     // alghoritm executions
     algorithmExecution();

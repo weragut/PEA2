@@ -36,6 +36,6 @@ bool Config::loadConfig(const string& filename) {
         }
     }
 
-    file.close(); // zamkniecie pliku
+    file.close();
     return true;
 }
