@@ -13,6 +13,7 @@
 #include "TSPBranchAndBound.h"
 #include "ProbyAlgorytmow.h"
 #include "BestFirstSearchBranchAndBound.h"
+#include "DFSBranchAndBound.h"
 
 //#include <windows.h> // do pomiaru zajetej pamieci
 //#include <psapi.h> // do pomiaru zajetej pamieci
@@ -64,6 +65,7 @@ void algorithmExecution() {
             bfsTimes.push_back(bfsTime);
             //bfsFile << matrix.getSize() << "," << bfsTime << "," << bfsSolver.getFinalCost() << "\n";
             cout << "BFS: final cost = " << bfsSolver.getFinalCost() << endl;
+            bfsSolver.printResult();
             //BFS bfs(matrix);
             /*BFSBranchAndBound bfsSolver(&matrix);
             bfsSolver.solveTSP();
@@ -85,12 +87,13 @@ void algorithmExecution() {
         }
 
         if(config.alghoritm_type == "dfs"|| config.alghoritm_type == "all") {
-            TSPBranchAndBound dfsSolver(&matrix);
+            DFSBranchAndBound dfsSolver(&matrix);
             dfsSolver.solveTSP();
             double dfsTime = dfsSolver.getExecutionTime();
             dfsTimes.push_back(dfsTime);
             //dfsFile << matrix.getSize() << "," << dfsTime << "," << dfsSolver.getFinalCost() << "\n";
             cout << "DFS: final cost = " << dfsSolver.getFinalCost() << endl;
+            dfsSolver.printResult();
             //DFS dfs(matrix);
            // dfs.findShortestPath();
             //dfs.displayResult();
@@ -112,6 +115,7 @@ void algorithmExecution() {
             bestTimes.push_back(bestTime);
             //bestFile << matrix.getSize() << "," << bestTime << "," << bestSolver.getFinalCost() << "\n";
             cout << "best: final cost = " << bestSolver.getFinalCost() << endl;
+
             /*BestFirstSearchBranchAndBound best(&matrix);
             best.solveTSP();
             best.printResult();
