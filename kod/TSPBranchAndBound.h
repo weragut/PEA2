@@ -1,37 +1,31 @@
 #ifndef TSPBRANCHANDBOUND_H
 #define TSPBRANCHANDBOUND_H
 
-#include "Matrix.h" // Klasa Matrix do obsługi macierzy
+#include "Matrix.h"
 #include <vector>
-#include <climits> // dla INT_MAX
+#include <climits>
 
 class TSPBranchAndBound {
 private:
     int final_res;                     // Minimalny koszt
     std::vector<int> final_path;       // Optymalna ścieżka
     std::vector<bool> visited;         // Węzły odwiedzone
-    int matrix_size;                             // Liczba miast
+    int matrix_size;                   // Liczba miast
     Matrix* matrix;                    // Wskaźnik do macierzy kosztów
 
-    // Funkcje pomocnicze
-    void copyToFinal(const std::vector<int>& curr_path); // Kopiuje ścieżkę do final_path
-    int firstMin(int i);                                // Pierwsze minimum dla węzła i
-    int secondMin(int i);                               // Drugie minimum dla węzła i
-    int calculateBound();
-    double executionTime; // Pole do przechowywania czasu wykonania
+    double executionTime;              // Czas wykonania algorytmu
 
-    void TSPRec(int curr_bound, int curr_weight, int level, std::vector<int>& curr_path); // Rekurencyjne B&B
+    void copyToFinal(const std::vector<int>& curr_path);  // Kopiuje ścieżkę do final_path
+    int calculateBound(const std::vector<int>& curr_path); // Ograniczenie dolne
+    int firstMin(int i);               // Pierwsze minimum dla węzła i
+    int secondMin(int i);              // Drugie minimum dla węzła i
+    void TSPRec(int curr_weight, int level, std::vector<int>& curr_path); // Rekurencyjne B&B
 
 public:
-    // Konstruktor
     TSPBranchAndBound(Matrix* inputMatrix);
-
-    int getFinalCost() const;
-    // Funkcja rozwiązująca problem TSP
     void solveTSP();
-    double getExecutionTime() const; // Funkcja zwracająca czas wykonania
-
-    // Funkcja wypisująca wynik
+    int getFinalCost() const;
+    double getExecutionTime() const;
     void printResult();
 };
 

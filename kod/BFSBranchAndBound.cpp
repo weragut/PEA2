@@ -1,6 +1,6 @@
 #include "BFSBranchAndBound.h"
-
 #include <chrono>
+#include <algorithm>
 
 BFSBranchAndBound::BFSBranchAndBound(Matrix* inputMatrix) {
     matrix = inputMatrix;
@@ -12,32 +12,33 @@ BFSBranchAndBound::BFSBranchAndBound(Matrix* inputMatrix) {
 int BFSBranchAndBound::calculateBound(const Node& node) {
     int bound = node.cost;
 
+    // Dodajemy pierwsze minimum dla każdego nieodwiedzonego wierzchołka
     for (int i = 0; i < matrix_size; i++) {
         if (!node.visited[i]) {
             int minCost = INT_MAX;
             for (int j = 0; j < matrix_size; j++) {
-                if (matrix->getCost(i, j) != -1 && i != j && !node.visited[j]) {
-                    // Sprawdzamy: istnieje krawędź z i do j, i != j, oraz j nie jest odwiedzony
-                    minCost = min(minCost, matrix->getCost(i, j)); // Znajdujemy minimalny koszt
+                if (!node.visited[j] && i != j && matrix->getCost(i, j) != -1) {
+                    minCost = std::min(minCost, matrix->getCost(i, j));
                 }
             }
             bound += minCost;
         }
     }
+
     return bound;
 }
 
-void BFSBranchAndBound::copyToFinal(const vector<int>& path) {
+void BFSBranchAndBound::copyToFinal(const std::vector<int>& path) {
     final_path = path;
-    final_path.push_back(path[0]); // Zamykamy cykl, wracając do startu
+    final_path.push_back(path[0]); // Zamykamy cykl
 }
 
 void BFSBranchAndBound::solveTSP() {
-    auto start = chrono::high_resolution_clock::now(); // Start pomiaru czasu
+    auto start = std::chrono::high_resolution_clock::now(); // Start pomiaru czasu
 
-    queue<Node> q;
+    QueueClass<Node> queue;
 
-    // Tworzymy korzeń drzewa
+    // Inicjalizacja węzła startowego
     Node root;
     root.level = 1;
     root.cost = 0;
@@ -47,26 +48,30 @@ void BFSBranchAndBound::solveTSP() {
     root.visited[0] = true;
 
     root.bound = calculateBound(root);
-    q.push(root);
+    queue.push(root);
 
-    while (!q.empty()) {
-        Node curr = q.front();
-        q.pop();
+    // Przetwarzanie węzłów w kolejce
+    while (!queue.empty()) {
+        Node current = queue.front();
+        queue.pop();
 
-        if (curr.bound >= final_res) continue;
+        // Jeśli ograniczenie dla węzła przekracza obecny najlepszy wynik, pomijamy go
+        if (current.bound >= final_res) continue;
 
+        // Rozwijanie węzła
         for (int i = 0; i < matrix_size; i++) {
-            if (!curr.visited[i] && matrix->getCost(curr.path.back(), i) != -1) {
-                Node child = curr;
-                child.level = curr.level + 1;
-                child.cost += matrix->getCost(curr.path.back(), i);
+            if (!current.visited[i] && matrix->getCost(current.path.back(), i) != -1) {
+                Node child = current;
+                child.level = current.level + 1;
+                child.cost += matrix->getCost(current.path.back(), i);
                 child.path.push_back(i);
                 child.visited[i] = true;
 
+                // Jeśli wszystkie wierzchołki zostały odwiedzone, obliczamy koszt końcowy
                 if (child.level == matrix_size) {
-                    // Jeśli mamy pełną ścieżkę, dodajemy koszt powrotu
-                    if (matrix->getCost(i, 0) != -1) {
-                        int totalCost = child.cost + matrix->getCost(i, 0);
+                    int returnCost = matrix->getCost(i, child.path[0]); // Powrót do startu
+                    if (returnCost != -1) {
+                        int totalCost = child.cost + returnCost;
                         if (totalCost < final_res) {
                             final_res = totalCost;
                             copyToFinal(child.path);
@@ -75,38 +80,30 @@ void BFSBranchAndBound::solveTSP() {
                 } else {
                     child.bound = calculateBound(child);
                     if (child.bound < final_res) {
-                        q.push(child);
+                        queue.push(child);
                     }
                 }
             }
         }
     }
-    auto end = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu
-    chrono::duration<double, micro> duration = end - start;
-    executionTime = duration.count(); // Zapisanie czasu
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::micro> duration = end - start;
+    executionTime = duration.count();
 }
+
 double BFSBranchAndBound::getExecutionTime() const {
     return executionTime;
 }
 
-void BFSBranchAndBound::printResult() {
-    cout << "Final Path Content: ";
-    for (int node : final_path) {
-        cout << node << " ";
-    }
-    cout << endl;
-
-    cout << "Minimum Cost: " << final_res << endl;
-    cout << "Path Taken: ";
-    for (size_t i = 0; i < final_path.size(); i++) {
-        if (final_path[i] == -1) {
-            cerr << "Warning: Path contains invalid node (-1)!" << endl;
-        }
-        cout << final_path[i] << " ";
-    }
-    cout << endl;
+int BFSBranchAndBound::getFinalCost() const {
+    return final_res;
 }
 
-int BFSBranchAndBound::getFinalCost() const {
-    return final_res; // Zwraca finalny koszt obliczony przez algorytm
+void BFSBranchAndBound::printResult() {
+    std::cout << "Final Path: ";
+    for (int node : final_path) {
+        std::cout << node << " ";
+    }
+    std::cout << "\nMinimum Cost: " << final_res << "\n";
 }

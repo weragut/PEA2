@@ -49,50 +49,55 @@ void DFS::displayResult() const {
 void DFS::branchAndBound(int* path, bool* visited, int level, int currentCost) {
     int size = matrix.getSize();
 
-    // base case: if the current path includes all vertices
+    // Log rozwijanej trasy
+    cout << "Rozwijana trasa: ";
+    for (int i = 0; i < level; ++i) {
+        cout << path[i] << " ";
+    }
+    cout << "- Koszt dotychczasowy: " << currentCost << endl;
+
+    // Jeśli osiągnięto pełną trasę (powrót do początkowego węzła)
     if (level == size) {
-        // add the cost of returning to the starting vertex
         int totalCost = currentCost + matrix.getCost(path[level - 1], path[0]);
-        cout << "Considered route: ";
+        cout << "Rozważana pełna trasa: ";
         for (int i = 0; i < size; ++i) {
             cout << path[i] << " ";
         }
+        cout << path[0] << " - Koszt całkowity: " << totalCost << endl;
 
-        cout << path[0] << " - Cost: " << totalCost << endl;
-
-        // update the best path and its cost if the totalCost is better
         if (totalCost < minCost) {
-            minCost = totalCost; // update the minimum cost
-            if (bestPath == nullptr) bestPath = new int[size + 1]; // allocate memory for the best path
+            minCost = totalCost;
+            if (bestPath == nullptr) bestPath = new int[size + 1];
             for (int i = 0; i < size; ++i) {
-                bestPath[i] = path[i]; // copy the current path to the best path
+                bestPath[i] = path[i];
             }
-            bestPath[size] = path[0]; // add the return to the starting vertex
+            bestPath[size] = path[0];
         }
-        return; // backtrack
+        return;
     }
 
-    // explore all possible next vertices
+    // Rozważanie kolejnych wierzchołków
     for (int i = 1; i < size; ++i) {
-        if (!visited[i]) { // check if the vertex has not been visited
-            // calculate the cost of visiting the next vertex
+        if (!visited[i]) {
             int newCost = currentCost + matrix.getCost(path[level - 1], i);
 
-            // only continue if the newCost is less than the current minimum cost
+            // Jeśli koszt nowej ścieżki jest mniejszy niż obecny minimalny koszt
             if (newCost < minCost) {
-                path[level] = i; // add the vertex to the current path
-                visited[i] = true; // mark the vertex as visited
+                path[level] = i;
+                visited[i] = true;
 
-                // recursively call branchAndBound to explore further
                 branchAndBound(path, visited, level + 1, newCost);
 
-                // backtrack: unmark the vertex as visited
-                visited[i] = false;
-            }else {
-                // bound
-                cout << "Ograniczenie aktywne: newCost = " << newCost
-                 << ", minCost = " << minCost
-                 << ", trasa odrzucona." << endl;
+                visited[i] = false; // Cofanie
+            } else {
+                // Wyświetlenie kosztu tylko do momentu przekroczenia ograniczenia
+                cout << "Odrzucono trase z powodu wysokiego kosztu: ";
+                for (int j = 0; j <= level - 1; ++j) {
+                    cout << path[j] << " ";
+                }
+                cout << i << " - Koszt: " << currentCost + matrix.getCost(path[level - 1], i) << endl;
+
+                // Przerwanie rozwijania tej gałęzi
             }
         }
     }

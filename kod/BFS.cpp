@@ -4,32 +4,40 @@
 using namespace std;
 
 // konstruktor
-BFS::BFS(const Matrix& m) : matrix(m), minCost(INT_MAX), bestPath(nullptr) {}
+BFS::BFS(const Matrix& m)
+    : matrix(m), minCost(INT_MAX), bestPath(nullptr), queueSize(0), front(0), rear(0) {
+    int size = matrix.getSize();
+    queueSize = 100000; // ustalony maksymalny rozmiar kolejki
+    pathQueue = new int*[queueSize];
+    costQueue = new int[queueSize];
+    levelQueue = new int[queueSize];
+    visitedQueue = new bool*[queueSize];
 
-// dekonstruktor
+    for (int i = 0; i < queueSize; ++i) {
+        pathQueue[i] = new int[size + 1];
+        visitedQueue[i] = new bool[size];
+    }
+}
+
+// destruktor
 BFS::~BFS() {
     delete[] bestPath;
+    for (int i = 0; i < queueSize; ++i) {
+        delete[] pathQueue[i];
+        delete[] visitedQueue[i];
+    }
+    delete[] pathQueue;
+    delete[] costQueue;
+    delete[] levelQueue;
+    delete[] visitedQueue;
 }
 
+// metoda główna
 void BFS::findShortestPath() {
-    int size = matrix.getSize();
-    if (size == 0) return;
-
-    // tablica przechowujaca obecnie przetwarzana trase
-    int* path = new int[size + 1];
-    // tablica przechowujaca informacje czy wierzcholek byl odwiedzony
-    bool* visited = new bool[size]();
-
-    path[0] = 0; // wierzcholek startowy
-    visited[0] = true; // wierzcholek startowy oznaczony jako odwiedzony
-
-    // wywolanie metody branchAndBound
-    branchAndBound(path, visited, 1, 0);
-
-    delete[] path;
-    delete[] visited;
+    branchAndBound();
 }
 
+// metoda wyświetlająca wynik
 void BFS::displayResult() const {
     if (bestPath != nullptr) {
         cout << "Najkrotsza trasa: ";
@@ -42,99 +50,102 @@ void BFS::displayResult() const {
     }
 }
 
-void BFS::branchAndBound(int* path, bool* visited, int level, int currentCost) {
+// metoda realizująca algorytm BFS z ograniczeniami (Branch and Bound)
+void BFS::branchAndBound() {
     int size = matrix.getSize();
 
-    if (level == size) {
-        int totalCost = currentCost + matrix.getCost(path[level - 1], path[0]);
-        cout << "Rozważana trasa: ";
-        for (int i = 0; i < size; ++i) {
-            cout << path[i] << " ";
+    // inicjalizacja stanu początkowego
+    pathQueue[rear][0] = 0;       // ścieżka zaczyna się od wierzchołka 0
+    for (int i = 0; i < size; ++i) {
+        visitedQueue[rear][i] = false;
+    }
+    visitedQueue[rear][0] = true; // oznaczenie wierzchołka 0 jako odwiedzonego
+    costQueue[rear] = 0;          // początkowy koszt
+    levelQueue[rear] = 1;         // początkowy poziom
+    rear = (rear + 1) % queueSize;
+
+    // główna pętla BFS
+    while (front != rear) {
+    // Pobierz bieżący stan z kolejki
+    int* currentPath = pathQueue[front];
+    bool* currentVisited = visitedQueue[front];
+    int currentCost = costQueue[front];
+    int currentLevel = levelQueue[front];
+    front = (front + 1) % queueSize;
+
+    // Odrzuć bieżący stan, jeśli częściowy koszt przekracza aktualny minCost
+    if (currentCost >= minCost) {
+        cout << "Odrzucono trase z powodu wysokiego kosztu: ";
+        for (int i = 0; i < currentLevel; ++i) {
+            cout << currentPath[i] << " ";
         }
-        cout << path[0] << " - Koszt: " << totalCost << endl;
+        cout << "- Koszt: " << currentCost << endl;
+        continue;
+    }
+
+    // Jeśli osiągnięto pełną ścieżkę
+    if (currentLevel == size) {
+        int totalCost = currentCost + matrix.getCost(currentPath[currentLevel - 1], 0);
+        cout << "Rozwazana trasa: ";
+        for (int i = 0; i < size; ++i) {
+            cout << currentPath[i] << " ";
+        }
+        cout << "0 - Koszt: " << totalCost << endl;
 
         if (totalCost < minCost) {
             minCost = totalCost;
             if (bestPath == nullptr) bestPath = new int[size + 1];
             for (int i = 0; i < size; ++i) {
-                bestPath[i] = path[i];
+                bestPath[i] = currentPath[i];
             }
-            bestPath[size] = path[0];
+            bestPath[size] = 0;
         }
-        return;
+        continue;
     }
 
+    // Generuj kolejne stany
     for (int i = 1; i < size; ++i) {
-        if (!visited[i]) {
-            int newCost = currentCost + matrix.getCost(path[level - 1], i);
+        if (!currentVisited[i]) {
+            // Deklaracja newCost wewnątrz pętli
+            int newCost = currentCost + matrix.getCost(currentPath[currentLevel - 1], i);
 
-            if (newCost < minCost) {
-                path[level] = i;
-                visited[i] = true;
-
-                branchAndBound(path, visited, level + 1, newCost);
-
-                visited[i] = false;
+            // Odrzucenie ścieżki od razu po przekroczeniu minCost
+            if (newCost >= minCost) {
+                cout << "Odrzucono trase: ";
+                for (int j = 0; j < currentLevel; ++j) {
+                    cout << currentPath[j] << " ";
+                }
+                cout << i << " - Koszt: " << newCost << endl;
+                continue; // Przejdź do następnej iteracji pętli
             }
+
+            // Ograniczenie: jeśli kolejny wierzchołek przekracza limit, przerwij rozwijanie
+            if (newCost >= minCost) {
+                break; // Koniec rozwijania tej ścieżki
+            }
+
+            // Sprawdź przepełnienie kolejki
+            if ((rear + 1) % queueSize == front) {
+                cerr << "Przekroczono maksymalny rozmiar kolejki!" << endl;
+                exit(1);
+            }
+
+            // Kopiuj bieżący stan do nowego elementu kolejki
+            for (int j = 0; j < size; ++j) {
+                visitedQueue[rear][j] = currentVisited[j];
+            }
+            for (int j = 0; j < currentLevel; ++j) {
+                pathQueue[rear][j] = currentPath[j];
+            }
+            pathQueue[rear][currentLevel] = i; // Dodaj nowy wierzchołek do ścieżki
+            visitedQueue[rear][i] = true;     // Oznacz wierzchołek jako odwiedzony
+
+            costQueue[rear] = newCost;
+            levelQueue[rear] = currentLevel + 1;
+
+            rear = (rear + 1) % queueSize;
         }
     }
 }
 
-
-// Algorytm dla macierzy symetrycznych
-void BFS::findShortestPathSymmetric() {
-    int size = matrix.getSize();
-    if (size == 0) return;
-
-    int* path = new int[size + 1];
-    bool* visited = new bool[size]();
-
-    path[0] = 0;
-    visited[0] = true;
-
-    branchAndBoundSymmetric(path, visited, 1, 0);
-
-    delete[] path;
-    delete[] visited;
-}
-
-// Branch and Bound dla macierzy symetrycznych
-void BFS::branchAndBoundSymmetric(int* path, bool* visited, int level, int currentCost) {
-    int size = matrix.getSize();
-
-    // Jeśli osiągnęliśmy pełną trasę (powrót do miasta początkowego)
-    if (level == size) {
-        int totalCost = currentCost + matrix.getCost(path[level - 1], path[0]);
-        cout << "Rozważana trasa (symetryczna): ";
-        for (int i = 0; i < size; ++i) {
-            cout << path[i] << " ";
-        }
-        cout << path[0] << " - Koszt: " << totalCost << endl;
-
-        if (totalCost < minCost) {
-            minCost = totalCost;
-            if (bestPath == nullptr) bestPath = new int[size + 1];
-            for (int i = 0; i < size; ++i) {
-                bestPath[i] = path[i];
-            }
-            bestPath[size] = path[0];
-        }
-        return;
-    }
-
-    // Eksploruj kolejne wierzchołki
-    for (int i = 1; i < size; ++i) {
-        if (!visited[i] && i > path[level - 1]) { // Jeśli wierzchołek nie został jeszcze odwiedzony
-            int newCost = currentCost + matrix.getCost(path[level - 1], i);
-
-            if (newCost < minCost) { // Jeśli nowy koszt jest obiecujący
-                path[level] = i;
-                visited[i] = true;
-
-                branchAndBoundSymmetric(path, visited, level + 1, newCost);
-
-                visited[i] = false; // Cofanie (backtracking)
-            }
-        }
-    }
 }

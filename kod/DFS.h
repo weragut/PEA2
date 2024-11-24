@@ -29,4 +29,4 @@ private:
 
 };
 
-#endif // BFS_H
+#endif // DFS_H

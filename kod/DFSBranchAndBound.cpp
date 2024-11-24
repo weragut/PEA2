@@ -1,6 +1,5 @@
 #include "DFSBranchAndBound.h"
 #include <chrono>
-#include <algorithm>
 
 DFSBranchAndBound::DFSBranchAndBound(Matrix* inputMatrix) {
     matrix = inputMatrix;
@@ -18,7 +17,9 @@ int DFSBranchAndBound::firstMin(int i) {
     int min = INT_MAX;
     for (int k = 0; k < matrix_size; k++) {
         if (matrix->getCost(i, k) != -1 && i != k) {
-            min = std::min(min, matrix->getCost(i, k));
+            if (matrix->getCost(i, k) < min) {
+                min = matrix->getCost(i, k);
+            }
         }
     }
     return min;

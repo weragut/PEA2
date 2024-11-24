@@ -1,6 +1,5 @@
 #include "BestFirstSearchBranchAndBound.h"
 #include <iostream>
-#include <algorithm>
 #include <chrono>
 #include <climits>
 
@@ -19,11 +18,20 @@ int BestFirstSearchBranchAndBound::calculateLowerBound(const std::vector<int>& p
 
     // Dodaj dolną granicę kosztów dla nieodwiedzonych wierzchołków
     for (int i = 0; i < matrix_size; ++i) {
-        if (find(path.begin(), path.begin() + level, i) == path.begin() + level) {
+        bool visited = false;
+        for (int j = 0; j < level; ++j) {
+            if (path[j] == i) {
+                visited = true;
+                break;
+            }
+        }
+        if (!visited) {
             int min_cost = INT_MAX;
             for (int j = 0; j < matrix_size; ++j) {
                 if (matrix->getCost(i, j) != -1 && i != j) {
-                    min_cost = std::min(min_cost, matrix->getCost(i, j));
+                    if (matrix->getCost(i, j) < min_cost) {
+                        min_cost = matrix->getCost(i, j);
+                    }
                 }
             }
             bound += min_cost;
@@ -33,22 +41,34 @@ int BestFirstSearchBranchAndBound::calculateLowerBound(const std::vector<int>& p
     return bound;
 }
 
+void BestFirstSearchBranchAndBound::pushNode(const Node& node) {
+    manualQueue.push_back(node);
+    for (size_t i = manualQueue.size() - 1; i > 0; --i) {
+        if (manualQueue[i].bound < manualQueue[i - 1].bound) {
+            std::swap(manualQueue[i], manualQueue[i - 1]);
+        } else {
+            break;
+        }
+    }
+}
+
+BestFirstSearchBranchAndBound::Node BestFirstSearchBranchAndBound::popNode() {
+    Node top = manualQueue.front();
+    manualQueue.erase(manualQueue.begin());
+    return top;
+}
+
 void BestFirstSearchBranchAndBound::solveTSP() {
+    auto start = std::chrono::high_resolution_clock::now();
 
-    auto start = chrono::high_resolution_clock::now(); // Start pomiaru czasu
-
-    // Priority queue to explore the node with the smallest bound first
-    priority_queue<Node> pq;
-
-    vector<int> initial_path(matrix_size, -1);
+    std::vector<int> initial_path(matrix_size, -1);
     initial_path[0] = 0;
 
     int initial_bound = calculateLowerBound(initial_path, 1);
-    pq.push(Node(1, 0, initial_bound, initial_path));
+    pushNode(Node(1, 0, initial_bound, initial_path));
 
-    while (!pq.empty()) {
-        Node current = pq.top();
-        pq.pop();
+    while (!manualQueue.empty()) {
+        Node current = popNode();
 
         if (current.bound >= final_res) {
             continue;
@@ -65,36 +85,44 @@ void BestFirstSearchBranchAndBound::solveTSP() {
         }
 
         for (int i = 0; i < matrix_size; ++i) {
-            if (find(current.path.begin(), current.path.begin() + current.level, i) == current.path.begin() + current.level) {
-                vector<int> new_path = current.path;
+            bool visited = false;
+            for (int j = 0; j < current.level; ++j) {
+                if (current.path[j] == i) {
+                    visited = true;
+                    break;
+                }
+            }
+            if (!visited) {
+                std::vector<int> new_path = current.path;
                 new_path[current.level] = i;
 
                 int new_cost = current.cost + matrix->getCost(current.path[current.level - 1], i);
                 int new_bound = calculateLowerBound(new_path, current.level + 1);
 
                 if (new_bound < final_res) {
-                    pq.push(Node(current.level + 1, new_cost, new_bound, new_path));
+                    pushNode(Node(current.level + 1, new_cost, new_bound, new_path));
                 }
             }
         }
     }
-    auto end = chrono::high_resolution_clock::now(); // Koniec pomiaru czasu
-    chrono::duration<double, micro> duration = end - start;
-    executionTime = duration.count(); // Zapisanie czasu
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::micro> duration = end - start;
+    executionTime = duration.count();
 }
 
 double BestFirstSearchBranchAndBound::getExecutionTime() const {
     return executionTime;
 }
+
 void BestFirstSearchBranchAndBound::printResult() {
-    cout << "Final Path: ";
+    std::cout << "Final Path: ";
     for (int node : final_path) {
-        cout << node << " ";
+        std::cout << node << " ";
     }
-    cout << "\nMinimum Cost: " << final_res << std::endl;
+    std::cout << "\nMinimum Cost: " << final_res << std::endl;
 }
 
-
 int BestFirstSearchBranchAndBound::getFinalCost() const {
-    return final_res; // Zwraca finalny koszt obliczony przez algorytm
+    return final_res;
 }

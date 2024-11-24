@@ -4,29 +4,27 @@
 #include "Matrix.h"
 
 class BFS {
+private:
+    const Matrix& matrix;   // referencja do macierzy kosztów
+    int minCost;            // minimalny koszt (najlepszy znaleziony)
+    int* bestPath;          // najlepsza ścieżka
+    int queueSize;          // rozmiar kolejki
+    int front;              // indeks początku kolejki
+    int rear;               // indeks końca kolejki
+    int** pathQueue;        // kolejka przechowująca ścieżki
+    int* costQueue;         // kolejka przechowująca koszty
+    int* levelQueue;        // kolejka przechowująca poziomy
+    bool** visitedQueue;    // kolejka przechowująca odwiedzone wierzchołki
+
 public:
-    // Konstruktor: przyjmuje referencję do obiektu klasy Matrix
-    BFS(const Matrix& matrix);
+    BFS(const Matrix& m);   // konstruktor
+    ~BFS();                 // destruktor
 
-    // Destruktor: zwalnia dynamicznie alokowaną pamięć dla bestPath
-    ~BFS();
-
-    // Metoda wykonująca algorytm BFS, aby znaleźć najkrótszą trasę
-    void findShortestPath();
-    void findShortestPathSymmetric();  // Algorytm dla macierzy symetrycznych
-
-    // Metoda wyświetlająca wynik końcowy
-    void displayResult() const;
-
-    // Metoda rekurencyjna do wykonywania algorytmu branch and bound na częściach trasy
-    void branchAndBound(int* path, bool* visited, int level, int currentCost);
-    void branchAndBoundSymmetric(int* path, bool* visited, int level, int currentCost); // Branch and Bound dla macierzy symetrycznych
+    void findShortestPath();  // metoda główna do znajdowania najkrótszej ścieżki
+    void displayResult() const; // metoda do wyświetlania wyników
 
 private:
-    const Matrix& matrix;      // Referencja do macierzy kosztów
-    int minCost;         // Minimalny koszt znalezionej trasy
-    int* bestPath;       // Najkrótsza trasa, reprezentowana jako dynamiczna tablica
-
+    void branchAndBound();    // metoda realizująca BFS z ograniczeniami
 };
 
 #endif // BFS_H
