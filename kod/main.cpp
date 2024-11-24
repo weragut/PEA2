@@ -10,6 +10,8 @@
 #include "DFS.h"
 #include "TSPBranchAndBound.h"
 #include "ProbyAlgorytmow.h"
+#include "BestFirstSearchBranchAndBound.h"
+
 using namespace std;
 
 // obiekt config do przechowywania ustawien z pliku konfiguracyjnego
@@ -60,6 +62,10 @@ void algorithmExecution() {
             /*ProbyAlgorytmow tspSolver(&matrix);
             tspSolver.solveTSP();
             tspSolver.printResult();*/
+        }else if(config.alghoritm_type == "best") {
+            BestFirstSearchBranchAndBound best(&matrix);
+            best.solveTSP();
+            best.printResult();
         }
 
 
