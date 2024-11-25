@@ -6,16 +6,16 @@ using namespace std;
 
 
 bool Config::loadConfig(const string& filename) {
-    ifstream file(filename); // otworzenie pliku konfiguracyjnego do odczytu
+    ifstream file(filename); // open configuration file for reading
 
-    if (!file.is_open()) { // sprawdzenie czy plik zostal otwarty
-        cerr << "Nie mozna otworzyc pliku konfiguracyjnego: " << filename << endl;
+    if (!file.is_open()) { // check if the file has been opened
+        cerr << "Cannot open configuration file: " << filename << endl;
         return false;
     }
 
     string key;
-    while (file >> key) { // odczytywanie kluczy
-        if (key == "matrix_source") { // sprawdzenie klucza i przypisanie wartosci, która jest po spacji
+    while (file >> key) { // reading keys
+        if (key == "matrix_source") { // check the key and assign the value that comes after the space
             file >> matrix_source;
         } else if (key == "progress_indicator") {
             file >> progress_indicator;
@@ -29,10 +29,6 @@ bool Config::loadConfig(const string& filename) {
             file >> matrix_type;
         }else if (key == "alghoritm_type") {
             file >> alghoritm_type;
-        } else if (key == "start_node") {
-            file >> start_node;
-        }else if (key == "display_cost") {
-            file >> display_cost;
         }
     }
 

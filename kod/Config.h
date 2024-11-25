@@ -6,20 +6,17 @@ using namespace std;
 
 class Config {
 public:
-    string matrix_source; // zrodlo danych wejsciowych file lub manual
-    string alghoritm_type; // nazwa algorytmu: przeglad, najblizszych lub losowy
-    int repetitions; // ilosc powtorzen do testow
-    bool progress_indicator; // wskaznik postepu 1 - wyswietl, 0 - nie wyswietlaj
-    int start_node; // wierzcholek startowy
-    // gdy matrix_source = "file"
-    string input_file; // plik z danymi wejsciowymi (nie zapomniec o katalogu)
+    string matrix_source;
+    string alghoritm_type;
+    int repetitions;
+    bool progress_indicator;
+    // when matrix_source = "file"
+    string input_file;
+    // when matrix_source = "file"
+    int matrix_size;
+    string matrix_type;
 
-    // gdy matrix_source = "file"
-    int matrix_size; // rozmiar macierzy
-    string matrix_type; // typ macierzy: synchronous lub asynchronous
-    bool display_cost; // 1 - wyswietla koszt, 0 - nie wyswietla
-
-    // funkcja do wczytania pliku konfiguracyjnego
+    // function to load configuration file
     bool loadConfig(const string& filename);
 };
 

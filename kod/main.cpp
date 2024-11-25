@@ -13,8 +13,7 @@
 #include "BestFirstSearchBranchAndBound.h"
 #include "DFSBranchAndBound.h"
 
-//#include <windows.h> // for memory usage
-//#include <psapi.h> // for memory usage
+
 
 
 using namespace std;
@@ -23,6 +22,7 @@ using namespace std;
 Config config;
 // matrix declaration
 Matrix matrix;
+
 
 // algorithm execution
 void algorithmExecution() {

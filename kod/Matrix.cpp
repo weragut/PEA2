@@ -2,71 +2,70 @@
 #include "Matrix.h"
 #include <iostream>
 #include <fstream>
-#include <cstdlib>  // do funkcji rand()
+#include <cstdlib>
 using namespace std;
 
-// konstruktor inicjalizuje macierz jako pusta i rozmiar = 0
+// constructor initializes matrix as empty and size = 0
 Matrix::Matrix() : matrix(nullptr), size(0) {}
-// dekonstruktor wywoluje funkcje zwalniajaca pamiec
+// deconstructor
 Matrix::~Matrix() {
     freeMemory();
 }
-// funkcja wczytujaca macierz z pliku
+// load matrix form file
 bool Matrix::loadFromFile(const string& filename) {
-    ifstream inputFile(filename);// otwieranie pliku
+    ifstream inputFile(filename);// open file
 
     if (!inputFile.is_open()) {
-        cout << "Proba otwarcia pliku: " << filename << endl;
-        cerr << "Nie można otworzyc pliku: " << filename << endl;
+        cout << "Attempting to open file: " << filename << endl;
+        cerr << "Cannot open file: " << filename << endl;
         return false;
     }
 
-    // usuniecie pamieci przed wczytaniem macierzy
     freeMemory();
 
-    inputFile >> size; // wprowadzenie rozmiaru z pliku z danymi
+    inputFile >> size;  // insert size from data file
 
-    // wczytanie wartości z pliku do macierzy
-    matrix = new int*[size]; // alokacja dynamicznej tablicy wskazników
+    // loading values from file into matrix
+    matrix = new int*[size];
     for (int i = 0; i < size; ++i) {
-        matrix[i] = new int[size]; // alokacja pamieci dla wierszy macierzy
+        matrix[i] = new int[size];
         for (int j = 0; j < size; ++j) {
-            inputFile >> matrix[i][j]; // wczytanie wrtosci
+            inputFile >> matrix[i][j]; // load value
         }
     }
 
-    inputFile.close(); // zamkniecie pliku
+    inputFile.close();
     return true;
 }
 
-// funkcja generujaca losowa macierz
+// function generating random matrix
 void Matrix::generateManual(int matrixsize, const string& type) {
-    // usuniecie pamieci przed wczytaniem macierzy
+
     freeMemory();
-    size = matrixsize; // przypisanie rozmiaru
-    matrix = new int*[size]; // alokacja dynamicznej tablicy wskazników
+    size = matrixsize;
+    matrix = new int*[size]; // dynamic pointer array allocation
 
     if(type == "asynchronous") {
         for (int i = 0; i < size; ++i) {
-            matrix[i] = new int[size]; // alokacja pamieci dla kazdego wiersza
+            matrix[i] = new int[size];
             for (int j = 0; j < size; ++j) {
                 if (i == j) {
-                    matrix[i][j] = -1;  // przekatna = -1
+                    matrix[i][j] = -1;  // diagonal = -1
                 } else {
-                    matrix[i][j] = rand() % 100 + 1;  // wartosci od 1 do 100
+                    matrix[i][j] = rand() % 100 + 1;  // values from 1 to 100
                 }
             }
         }
     }else if (type == "synchronous"){
         for (int i = 0; i < size; ++i) {
-            matrix[i] = new int[size]; // alokacja pamieci dla kazdego wiersza
+            matrix[i] = new int[size];
             for (int j = 0; j < size; ++j) {
                 if (i == j) {
-                    matrix[i][j] = -1;  // przekatna = -1
+                    matrix[i][j] = -1;
                 } else if(i<j){
                     matrix[i][j] = rand() % 100 + 1;
-                }else if(i>j) { // dla elementow ponizej przekatnej
-                    matrix[i][j] = matrix[j][i]; // to zapisujemy wartosc symetryczna do przekatnej
+                }else if(i>j) { // for elements below the diagonal
+                    matrix[i][j] = matrix[j][i]; //write a value symmetrical to the diagonal
                 }
             }
         }
@@ -75,7 +74,7 @@ void Matrix::generateManual(int matrixsize, const string& type) {
 
 }
 
-// wyswietlenie macierzy
+// display matrix
 void Matrix::display() const {
     if (matrix == nullptr) return;
 
@@ -87,7 +86,7 @@ void Matrix::display() const {
         cout << endl;
     }
 }
-// wyczyszczenie pamieci
+// free memory
 void Matrix::freeMemory() {
     if (matrix != nullptr) {
         for (int i = 0; i < size; ++i) {
@@ -97,11 +96,13 @@ void Matrix::freeMemory() {
         matrix = nullptr;
     }
 }
-// funkcja zwraca rozmiar macierzy
+
+// function returns the size of the matrix
 int Matrix::getSize() const {
     return size;
 }
-// funkcja zwraca koszt miedzy wierzcholkami
+
+// function returns cost between vertices
 int Matrix::getCost(int i, int j) const {
     if (i < size && j < size) {
         return matrix[i][j];
