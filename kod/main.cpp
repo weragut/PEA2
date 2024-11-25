@@ -13,121 +13,82 @@
 #include "BestFirstSearchBranchAndBound.h"
 #include "DFSBranchAndBound.h"
 
-//#include <windows.h> // do pomiaru zajetej pamieci
-//#include <psapi.h> // do pomiaru zajetej pamieci
+//#include <windows.h> // for memory usage
+//#include <psapi.h> // for memory usage
 
 
 using namespace std;
 
-// obiekt config do przechowywania ustawien z pliku konfiguracyjnego
+// configuration object to store settings
 Config config;
-// deklaracja macierzy
+// matrix declaration
 Matrix matrix;
-/*
-void printMemoryUsage() {
-    PROCESS_MEMORY_COUNTERS memCounter; // struktura do przechowywania danych o zuzyciu pamieci
-    GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof(memCounter)); // ta funkcja pobiera informacje o zuzyciu pamieci dla danego procesu
-    // argumenty: process handle, wskaznik na strukture przechowujaca dane o pamieci, rozmiar struktury
-    cout << "Aktualnie zajeta pamiec: " << memCounter.WorkingSetSize / 1024 << " KB" << endl;
-}*/
 
-// wykonywanie algorytmu i zapis czasow do plikow
+// algorithm execution
 void algorithmExecution() {
-/*
-    // Pliki wyjściowe dla każdego algorytmu
-    ofstream bfsFile("wyniki/bfs.csv", ios::app);
-    ofstream dfsFile("wyniki/dfs.csv", ios::app);
-    ofstream bestFile("wyniki/best.csv", ios::app);
-*/
-    vector<double> bfsTimes, dfsTimes, bestTimes; // Do przechowywania czasów
+
+    vector<double> bfsTimes, dfsTimes, bestTimes; // vectors for storing times
 
 
     for (int i = 0; i < config.repetitions; i++) {
 
-        // Generowanie lub wczytywanie macierzy
+        // process indicator
+        if (config.progress_indicator) {
+            int progress = (i + 1) * 100 / config.repetitions;  // calculate completion percentage
+            cout << "Progress: " << progress << "% (" << i + 1 << "/" << config.repetitions << ")\n";
+            cout.flush();  // refresh
+        }
+
+        // generating a matrix or loading from file
         if (config.matrix_source == "manual") {
             matrix.generateManual(config.matrix_size, config.matrix_type);
         } else if (config.matrix_source == "file") {
             if (!matrix.loadFromFile(config.input_file)) {
-                cerr << "Błąd wczytywania macierzy." << endl;
+                cerr << "Error loading matrix from file." << endl;
                 return;
             }
         }
 
-        matrix.display();
+        //matrix.display();
 
+        // execute BFS Branch and Bound
         if (config.alghoritm_type == "bfs"|| config.alghoritm_type == "all") {
             BFSBranchAndBound bfsSolver(&matrix);
             bfsSolver.solveTSP();
             double bfsTime = bfsSolver.getExecutionTime();
             bfsTimes.push_back(bfsTime);
-            //bfsFile << matrix.getSize() << "," << bfsTime << "," << bfsSolver.getFinalCost() << "\n";
             cout << "BFS: final cost = " << bfsSolver.getFinalCost() << endl;
-            bfsSolver.printResult();
-            //BFS bfs(matrix);
-            /*BFSBranchAndBound bfsSolver(&matrix);
-            bfsSolver.solveTSP();
-            cout << "BFS Branch and Bound Result:" << endl;
-            bfsSolver.printResult();
-            cout << "Czas wykonania (w mikrosekundach): " << bfsSolver.getExecutionTime() << " us" << std::endl;
-
-*/
-                // Wykonujemy algorytm BFS dla problemu komiwojażera
-                //bfs.findShortestPath();
-
-
-                // Wyświetlamy wynik
-                //bfs.displayResult();
-                //bfs.findShortestPathSymmetric();
-                //bfs.displayResult();
-                //cout<< "Metoda BFS" << endl;
-
+            //bfsSolver.printResult();
         }
 
+        // execute DFS Branch and Bound
         if(config.alghoritm_type == "dfs"|| config.alghoritm_type == "all") {
             DFSBranchAndBound dfsSolver(&matrix);
             dfsSolver.solveTSP();
             double dfsTime = dfsSolver.getExecutionTime();
             dfsTimes.push_back(dfsTime);
-            //dfsFile << matrix.getSize() << "," << dfsTime << "," << dfsSolver.getFinalCost() << "\n";
             cout << "DFS: final cost = " << dfsSolver.getFinalCost() << endl;
-            dfsSolver.printResult();
-            //DFS dfs(matrix);
-           // dfs.findShortestPath();
-            //dfs.displayResult();
-            //cout<< "Metoda DFS" << endl;
-            // Rozwiązanie TSP algorytmem Branch and Bound
-            /*TSPBranchAndBound tsp(&matrix);
-            tsp.solveTSP();
-            tsp.printResult();
-*/
-            /*ProbyAlgorytmow tspSolver(&matrix);
-            tspSolver.solveTSP();
-            tspSolver.printResult();*/
         }
 
+        // execute Best-First Search Branch and Bound
         if(config.alghoritm_type == "best" || config.alghoritm_type == "all") {
             BestFirstSearchBranchAndBound bestSolver(&matrix);
             bestSolver.solveTSP();
             double bestTime = bestSolver.getExecutionTime();
             bestTimes.push_back(bestTime);
-            //bestFile << matrix.getSize() << "," << bestTime << "," << bestSolver.getFinalCost() << "\n";
-            cout << "best: final cost = " << bestSolver.getFinalCost() << endl;
-
-            /*BestFirstSearchBranchAndBound best(&matrix);
-            best.solveTSP();
-            best.printResult();
-            */
+            cout << "best first search: final cost = " << bestSolver.getFinalCost() << endl;
         }
 
 
     }
-    // otworzenie plikow w trybie dopisywania
+
+
+    // save results to output files
     ofstream bfsFile("wyjscie/bfs.csv", ios::app);
     ofstream dfsFile("wyjscie/dfs.csv", ios::app);
     ofstream bestFile("wyjscie/best.csv", ios::app);
 
-    // zapisanie wynikow
+    // save BFS times to file if executed
         if (config.alghoritm_type == "bfs"|| config.alghoritm_type == "all") {
         bfsFile << matrix.getSize() << endl; // zapisujemy rozmiar
         for (double time : bfsTimes) {
@@ -136,6 +97,7 @@ void algorithmExecution() {
         bfsFile << endl;
     }
 
+    // save DFS times to file if executed
     if(config.alghoritm_type == "dfs"|| config.alghoritm_type == "all") {
         dfsFile << matrix.getSize() << endl;
         for (double time : dfsTimes) {
@@ -144,6 +106,7 @@ void algorithmExecution() {
         dfsFile << endl;
     }
 
+    // save Best-First Search times to file if executed
     if(config.alghoritm_type == "best" || config.alghoritm_type == "all") {
         bestFile << matrix.getSize() << endl;
         for (double time : bestTimes) {
@@ -177,21 +140,23 @@ void algorithmExecution() {
     }
 
 
+
+
 }
 
 
 int main() {
-    srand(time(0)); // ziarno do funkcji rand
+    srand(time(0)); // seed for random number generation
 
-    // wczytaj plik konfiguracyjny
+    // load configuration file
     if (!config.loadConfig("wejscie/plik_konfiguracyjny.txt")) {
         return 1;
     }
 
-
-
     // alghoritm executions
     algorithmExecution();
 
+    // print memory usage
+    //printMemoryUsage();
     return 0;
 }
