@@ -114,7 +114,7 @@ void DFSBranchAndBound::solveTSP() {
     root.bound = 0;
     root.path.push_back(0); // starting with node 0
     root.visited.resize(matrix_size, false); // visited vector false for all nodes
-    root.visited[0] = true; // mark doe as visited
+    root.visited[0] = true; // mark node as visited
 
     // calculate the initial bound
     root.bound = calculateBound(root);
