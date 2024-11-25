@@ -50,7 +50,7 @@ int BestFirstSearchBranchAndBound::calculateLowerBound(const vector<int>& path, 
 // adding a new node to the queue while keeping it sorted
 // the node with the lowest bound is the first node in the priority queue
 void BestFirstSearchBranchAndBound::pushNode(const Node& node) {
-    manualQueue.push_back(node); // adding a new node t the queue
+    manualQueue.push_back(node); // adding a new node to the queue
 
     // putting new node in right place in sorted queue
     for (size_t i = manualQueue.size() - 1; i > 0; --i) {
@@ -82,6 +82,7 @@ void BestFirstSearchBranchAndBound::solveTSP() {
     // push the initial node into the priority queue.
     pushNode(Node(1, 0, initial_bound, initial_path));
 
+    // until the priority queue is empty
     // process nodes in the priority queue
     while (!manualQueue.empty()) {
         // the node with the lowest bouond
@@ -108,14 +109,16 @@ void BestFirstSearchBranchAndBound::solveTSP() {
 
         // expand the current node
         for (int i = 0; i < matrix_size; ++i) {
+            // for each city not visited in the current path
             bool visited = false;
-            // checking if visited
+            // check if visited
             for (int j = 0; j < current.level; ++j) {
                 if (current.path[j] == i) {
                     visited = true; // mark as visited
                     break; // stop checking
                 }
             }
+
             // if not visited generate child node
             if (!visited) {
                 // copy the current path and add the new node
