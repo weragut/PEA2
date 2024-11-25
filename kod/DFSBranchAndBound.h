@@ -5,35 +5,37 @@
 #include <vector>
 #include <climits>
 #include <iostream>
+using namespace std;
 
 class DFSBranchAndBound {
 private:
+
+    // definition of a node structure
     struct Node {
-        int level;                      // Poziom w drzewie
-        int bound;                      // Ograniczenie dla tej ścieżki
-        int cost;                       // Koszt dotychczasowy
-        std::vector<int> path;          // Obecna ścieżka
-        std::vector<bool> visited;      // Węzły odwiedzone
+        int level; // depth (the number of visited nodes)
+        int bound; // lower bound for this node
+        int cost; // cost for the current path
+        vector<int> path; // list of visited nodes in the current path
+        vector<bool> visited; // visited nodes
     };
 
-    Matrix* matrix;                     // Wskaźnik na macierz kosztów
-    int matrix_size;                    // Liczba wierzchołków
-    int final_res;                      // Minimalny koszt
-    std::vector<int> final_path;        // Najlepsza ścieżka
-    double executionTime;               // Czas wykonania algorytmu
+    Matrix* matrix;
+    int matrix_size;
+    int final_res; // cost of the min cost path
+    vector<int> final_path; // min cost path
+    double executionTime; // time
 
-    void dfs(Node node);                // Funkcja DFS
-    int calculateBound(const Node& node); // Obliczanie ograniczenia
-    int firstMin(int i);                // Pierwsze minimum dla wierzchołka i
-    int secondMin(int i);               // Drugie minimum dla wierzchołka i
-    void copyToFinal(const std::vector<int>& path); // Kopiowanie ścieżki
-
+    void dfs(Node node); // DFS function to explore paths
+    int calculateBound(const Node& node); // lower bound calculation
+    int firstMin(int i); // calculate the smallest cost from a node
+    int secondMin(int i); // calculate the second smallest cost from a node
+    void copyToFinal(const vector<int>& path); // copies the current path into the final path
 public:
-    DFSBranchAndBound(Matrix* inputMatrix);
-    void solveTSP();
-    double getExecutionTime() const;
-    int getFinalCost() const;
-    void printResult();
+    DFSBranchAndBound(Matrix* inputMatrix); // constructor
+    void solveTSP();  // tsp solving function
+    double getExecutionTime() const; // returns the time
+    int getFinalCost() const;  // returns min cost
+    void printResult(); // prints result
 };
 
 #endif // DFSBRANCHANDBOUND_H

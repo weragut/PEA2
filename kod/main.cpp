@@ -7,11 +7,9 @@
 
 #include "Config.h"
 #include "Matrix.h"
-#include "BFS.h"
+
 #include "BFSBranchAndBound.h"
-#include "DFS.h"
-#include "TSPBranchAndBound.h"
-#include "ProbyAlgorytmow.h"
+
 #include "BestFirstSearchBranchAndBound.h"
 #include "DFSBranchAndBound.h"
 
@@ -161,7 +159,7 @@ void algorithmExecution() {
 
     //  informations
     cout << "Repetitions: " << config.repetitions << "\n";
-    cout << "Matrix size: " << config.matrix_size << "\n"; // zle
+    cout << "Matrix size: " << matrix.getSize() << "\n"; // zle
     cout << "Alghoritm type: " << config.alghoritm_type << "\n";
 
     // Obliczanie średnich czasów dla każdego algorytmu

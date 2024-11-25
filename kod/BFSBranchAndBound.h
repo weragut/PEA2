@@ -13,8 +13,8 @@ class BFSBranchAndBound {
 private:
     Matrix* matrix;
     int matrix_size;
-    int final_res; // minimal cost
-    vector<int> final_path; // the best path
+    int final_res; // cost of the min cost path
+    vector<int> final_path; // min cost path
 
     // definition of a node structure
     struct Node {
