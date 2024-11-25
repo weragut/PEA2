@@ -4,41 +4,46 @@
 #include <vector>
 #include <limits>
 #include "Matrix.h"
+using namespace std;
 
 class BestFirstSearchBranchAndBound {
 private:
-    struct Node {
-        int level;                 // Poziom węzła w drzewie B&B
-        int cost;                  // Koszt bieżącej ścieżki
-        int bound;                 // Ograniczenie dla tego węzła
-        std::vector<int> path;     // Ścieżka do tego węzła
 
-        Node(int lvl, int cst, int bnd, const std::vector<int>& pth)
-            : level(lvl), cost(cst), bound(bnd), path(pth) {}
+    // definition of a node structure
+    struct Node {
+        int level; // depth (the number of visited nodes)
+        int cost; // cost for the current path
+        int bound; // lower bound for this node
+        vector<int> path; // list of visited nodes in the current path
+
+        // Node constructor
+        Node(int lvl, int cst, int bnd, const vector<int>& pth): level(lvl), cost(cst), bound(bnd), path(pth) {}
     };
 
-    Matrix* matrix;                // Wskaźnik na macierz wag
-    int matrix_size;               // Rozmiar macierzy (liczba wierzchołków)
-    int final_res;                 // Minimalny koszt
-    std::vector<int> final_path;   // Optymalna ścieżka
-    double executionTime;          // Pole do przechowywania czasu wykonania
+    Matrix* matrix; // matrix pointer
+    int matrix_size;
+    int final_res;  // cost of the min cost path
+    vector<int> final_path; // min cost path
+    double executionTime; // time
 
-    int calculateLowerBound(const std::vector<int>& path, int level);
+    // lower bound calculation
+    int calculateLowerBound(const vector<int>& path, int level);
 
-    // Manually implemented priority queue
-    std::vector<Node> manualQueue;
+    // priority queue
+    vector<Node> manualQueue;
 
+    // functions for managing priority queue
     void pushNode(const Node& node);
     Node popNode();
 
 public:
-    BestFirstSearchBranchAndBound(Matrix* inputMatrix);
+    BestFirstSearchBranchAndBound(Matrix* inputMatrix); // constructor
 
-    void solveTSP();
-    double getExecutionTime() const; // Funkcja zwracająca czas wykonania
+    void solveTSP(); // tsp solving function
+    double getExecutionTime() const; // returns the time
 
-    int getFinalCost() const;
-    void printResult();
+    int getFinalCost() const; // returns min cost
+    void printResult(); // prints result
 };
 
 #endif // BEST_FIRST_SEARCH_BRANCH_AND_BOUND_H
