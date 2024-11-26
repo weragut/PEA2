@@ -90,9 +90,9 @@ void algorithmExecution() {
 
     // save BFS times to file if executed
         if (config.alghoritm_type == "bfs"|| config.alghoritm_type == "all") {
-        bfsFile << matrix.getSize() << endl; // zapisujemy rozmiar
+        bfsFile << matrix.getSize() << endl;
         for (double time : bfsTimes) {
-            bfsFile << time << " ";  // zapisujemy czasy oddzielone spacja
+            bfsFile << time << " ";
         }
         bfsFile << endl;
     }
@@ -115,7 +115,7 @@ void algorithmExecution() {
         bestFile << endl;
     }
 
-    // Zamykanie plików
+    // file close
     bfsFile.close();
     dfsFile.close();
     bestFile.close();
