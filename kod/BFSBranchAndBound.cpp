@@ -66,7 +66,7 @@ void BFSBranchAndBound::solveTSP() {
         Node current = queue.front(); // get the front node
         queue.pop(); // remove it from the queue
 
-        // pruning
+
         // skip nodes with bounds greater than or equal to the current best result
         if (current.bound >= final_res) continue;
 
@@ -107,7 +107,7 @@ void BFSBranchAndBound::solveTSP() {
 
     // stop the timer
     auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double, micro> duration = end - start; // calculate the time
+    chrono::duration<double, milli> duration = end - start; // calculate the time
     executionTime = duration.count();
 }
 

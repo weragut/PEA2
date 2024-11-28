@@ -141,7 +141,7 @@ void BestFirstSearchBranchAndBound::solveTSP() {
 
     // timer stop
     auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double, micro> duration = end - start; // duration
+    chrono::duration<double, milli> duration = end - start; // duration
     executionTime = duration.count();
 }
 

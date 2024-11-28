@@ -57,7 +57,7 @@ void algorithmExecution() {
             bfsSolver.solveTSP();
             double bfsTime = bfsSolver.getExecutionTime();
             bfsTimes.push_back(bfsTime);
-            cout << "BFS: final cost = " << bfsSolver.getFinalCost() << endl;
+            //cout << "BFS: final cost = " << bfsSolver.getFinalCost() << endl;
             //bfsSolver.printResult();
         }
 
@@ -67,7 +67,7 @@ void algorithmExecution() {
             dfsSolver.solveTSP();
             double dfsTime = dfsSolver.getExecutionTime();
             dfsTimes.push_back(dfsTime);
-            cout << "DFS: final cost = " << dfsSolver.getFinalCost() << endl;
+            //cout << "DFS: final cost = " << dfsSolver.getFinalCost() << endl;
         }
 
         // execute Best-First Search Branch and Bound
@@ -76,7 +76,7 @@ void algorithmExecution() {
             bestSolver.solveTSP();
             double bestTime = bestSolver.getExecutionTime();
             bestTimes.push_back(bestTime);
-            cout << "best first search: final cost = " << bestSolver.getFinalCost() << endl;
+            //cout << "best first search: final cost = " << bestSolver.getFinalCost() << endl;
         }
 
 
@@ -128,15 +128,15 @@ void algorithmExecution() {
     // Obliczanie średnich czasów dla każdego algorytmu
     if (!bfsTimes.empty()) {
         double avgBfsTime = accumulate(bfsTimes.begin(), bfsTimes.end(), 0.0) / bfsTimes.size();
-        cout << "Average time BFS: " << avgBfsTime << " us" << endl;
+        cout << "Average time BFS: " << avgBfsTime << " ms" << endl;
     }
     if (!dfsTimes.empty()) {
         double avgDfsTime = accumulate(dfsTimes.begin(), dfsTimes.end(), 0.0) / dfsTimes.size();
-        cout << "Average time DFS: " << avgDfsTime << " us" << endl;
+        cout << "Average time DFS: " << avgDfsTime << " ms" << endl;
     }
     if (!bestTimes.empty()) {
         double avgBestTime = accumulate(bestTimes.begin(), bestTimes.end(), 0.0) / bestTimes.size();
-        cout << "Average time Best First Search: " << avgBestTime << " us" << endl;
+        cout << "Average time Best First Search: " << avgBestTime << " ms" << endl;
     }
 
 

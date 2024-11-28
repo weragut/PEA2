@@ -124,7 +124,7 @@ void DFSBranchAndBound::solveTSP() {
 
     // stop the timer
     auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double, micro> duration = end - start; // calculate the time
+    chrono::duration<double, milli> duration = end - start; // calculate the time
     executionTime = duration.count();
 }
 
